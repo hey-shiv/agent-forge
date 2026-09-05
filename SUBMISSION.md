@@ -233,9 +233,12 @@ before/after would need many more samples than the hackathon window allowed.
   *design and improvement*, not the whole pipeline. We are not claiming otherwise.
 - **Eval sets are small** (12–19 items), so one item moves accuracy 5–8 points.
   This is a real contributor to the variance above.
-- **Cost is reported in tokens, not dollars.** `USD_PER_1M_*_TOKENS` are left at
-  zero rather than guessing OpenAI's prices; fill them in and every figure
-  populates. Token counts are exact.
+- **Dollar costs are only real for runs recorded after the pricing constants
+  were set.** `USD_PER_1M_*_TOKENS` in `llm.py` now hold gpt-5-nano's real
+  per-token rates, so cost is computed live from each run's own token counts.
+  Runs already in `runs/` from before that point show `total_cost_usd: 0.00`
+  and can't be corrected retroactively, because per-call token counts were
+  never persisted to disk — only the aggregate metric was.
 - **Only `gpt-5-nano` was available.** A larger model would likely change both
   the absolute numbers and which failure modes dominate.
 
