@@ -105,25 +105,56 @@ That third category is what forces the system past a prompt-editing plateau.
 
 ## Results
 
-Means over **3 repeat runs**, 4 rounds each, with the full range shown.
-9 runs total, all logged in `runs/` and auditable.
+**n = 8 runs per domain, 4 rounds each. 24 runs total.**
 
-| Domain | Shape | Round 0 (mean) | Best (mean) | Gain | Gain range |
-|---|---|---|---|---|---|
-| `ticket_routing` | classification | 0.815 | 0.926 | **+0.111** | +0.056 – +0.167 |
-| `invoice_extraction` | structured extraction | 0.911 | 0.951 | **+0.040** | +0.000 – +0.093 |
-| `meeting_scheduler` | constraint satisfaction · **unseen** | 0.917 | **1.000** | **+0.083** | +0.000 – +0.167 |
+| Domain | Shape | Round 0 | Best | Gain | Gain sd | Zero-gain runs |
+|---|---|---|---|---|---|---|
+| `ticket_routing` | classification | 0.785 | 0.889 | **+0.104** | 0.081 | 2 / 8 |
+| `invoice_extraction` | structured extraction | 0.898 | 0.958 | **+0.060** | 0.065 | 1 / 8 |
+| `meeting_scheduler` | constraint satisfaction · **unseen** | 0.812 | 0.917 | **+0.104** | 0.107 | 3 / 8 |
 
-The line that matters most is the third. On a domain the framework had never
-seen, with no code changed to accommodate it, the system reached **1.000 in all
-three repeats** (range 1.000–1.000). It was handed a goal, one tool description
-and a scoring function, and it designed an agent that solves the task perfectly.
+Read that honestly: the system improves the agent it wrote **on average, in all
+three domains, including one it had never seen** — and it fails to improve
+anything in **6 of 24 runs**. Gains range from +0.000 to +0.250 depending on the
+draw. The unseen domain reaches a perfect 1.000 in some runs and stalls at 0.583
+in others.
 
-Reliability was 1.000 across every run — no agent crashes. Total measurement
-cost: 195 model calls, 92.6k input / 125.9k output tokens.
+The mean gain on the unseen domain (+0.104) matching the tuned domain
+(+0.104) is the result we would most want to be true, and it is the one we are
+least willing to overstate on n=8.
 
-See `report/index.html` for per-round curves, failure clusters, and the system's
-own stated reason for every change.
+Reliability was 1.000 across all 24 runs — no agent crashes in any sample.
+
+Per-round curves, failure clusters, and the system's own stated reason for every
+change are in `report/index.html`. Raw distributions are in
+`report/variance.json`; per-round logs in `runs/`.
+
+### How this number got corrected — and why that matters
+
+The first version of this section reported something much better: three repeats
+of `meeting_scheduler`, all three reaching 1.000, range 1.000–1.000. It looked
+like a clean win.
+
+Then a release check — running the demo from a fresh clone as a judge would —
+scored **0.583 with zero gain and three rollbacks**. One extra sample
+contradicted the headline. Three runs had produced a confident claim that a
+fourth falsified.
+
+Taking n=8 gives the table above: mean gain +0.104, but 3 runs in 8 gain
+nothing. `scripts/measure_variance.py` exists because of this, and the
+"all three reached 1.000" claim was luck, not a result.
+
+**We think this is the most important thing in the submission.** A system whose
+entire purpose is to measure agents honestly has no business reporting its own
+performance from a lucky sample. The corrected, worse number is the real one.
+
+### Why the variance is this large
+
+- `gpt-5-nano` is non-deterministic and **rejects the `temperature` parameter**,
+  so runs cannot be pinned.
+- Eval sets are 12–19 items, so a single item moves accuracy by 5–8 points.
+- The generator's opening architecture choice varies run to run and strongly
+  determines the ceiling (see "What went wrong" §3).
 
 > **Why repeats:** `gpt-5-nano` is non-deterministic and *rejects* the
 > `temperature` parameter, so it cannot be pinned. Repeated runs of the same

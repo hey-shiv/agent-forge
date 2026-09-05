@@ -133,6 +133,19 @@ distinct domains" a real claim rather than a restatement.
 `meeting_scheduler` was written **after** the framework was finished and tuned
 on the other two. It is the generality test.
 
+### Results — n = 8 runs per domain, 4 rounds each
+
+| Domain | Round 0 | Best | Gain | sd | Zero-gain runs |
+|---|---|---|---|---|---|
+| `ticket_routing` | 0.785 | 0.889 | **+0.104** | 0.081 | 2 / 8 |
+| `invoice_extraction` | 0.898 | 0.958 | **+0.060** | 0.065 | 1 / 8 |
+| `meeting_scheduler` *(unseen)* | 0.812 | 0.917 | **+0.104** | 0.107 | 3 / 8 |
+
+The system improves the agent it wrote, on average, in all three domains —
+including one it had never seen. It also fails to improve anything in **6 of 24
+runs**. Both halves of that sentence are the result. Reliability was 1.000
+across all 24 runs (no crashes). Raw distributions: `report/variance.json`.
+
 Each eval set is built so failures cluster into nameable modes. In
 `ticket_routing`, for example:
 
@@ -148,10 +161,13 @@ Each eval set is built so failures cluster into nameable modes. In
 
 Reported here rather than buried, because they affect how the numbers should be read.
 
-**Single runs are noisy.** `gpt-5-nano` is non-deterministic and rejects the
-`temperature` parameter, so it cannot be pinned. Two runs of `invoice_extraction`
-gave round-0 accuracies of 0.800 and 0.867. `--repeats` exists for this reason;
-the headline numbers are means across repeats with the range stated.
+**Single runs are noisy — noisier than we first believed.** `gpt-5-nano` is
+non-deterministic and rejects the `temperature` parameter, so it cannot be
+pinned. We first reported 3 repeats of the unseen domain, all reaching 1.000. A
+release check from a fresh clone then scored 0.583 with zero gain, falsifying
+that. At n=8 the truth is mean gain +0.104 with **3 of 8 runs gaining nothing**.
+`scripts/measure_variance.py` exists because of this; distributions are in
+`report/variance.json`.
 
 **One early "result" was our own bug.** The scheduler first showed a dramatic
 0.167 → 0.667 climb. Investigation showed the dominant failure cluster
@@ -160,9 +176,11 @@ off the agent's search mid-scan — the system was fighting the framework, not
 learning. With the cap raised to 14 the honest curve is 0.833 → 1.000. The
 smaller, real number is the one reported.
 
-**Cost is reported in tokens, not dollars.** `USD_PER_1M_*_TOKENS` in `llm.py`
-are deliberately left at 0.0 rather than guessing OpenAI's prices. Fill in the
-two constants and every cost figure populates. Token counts are exact.
+**Cost figures only exist for recent runs.** `USD_PER_1M_*_TOKENS` in `llm.py`
+were set from OpenAI's published pricing partway through the project. Runs
+recorded before that stored `total_cost_usd = 0.00` and cannot be corrected
+retroactively, because per-call token counts were never persisted. Token totals
+printed at the end of a run are exact throughout.
 
 **The available model is small.** Only `gpt-5-nano` and two embedding models are
 reachable on the grant key. Domain design had to account for this: an early

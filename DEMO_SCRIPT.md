@@ -28,9 +28,9 @@ the AO-usage requirement is evidenced on camera.
 **Show:** `report/index.html`, scrolled to `ticket_routing`.
 
 > "Here it is on support-ticket routing. Round zero, it writes an agent from
-> scratch — 0.72.
+> scratch — around 0.78.
 >
-> Now the important part. It doesn't just see 'accuracy is 0.72'. It clusters
+> Now the important part. It doesn't just see a single accuracy number. It clusters
 > the failures into *named* modes."
 
 **Point at the failure-cluster chips in the table.**
@@ -79,7 +79,9 @@ the AO-usage requirement is evidenced on camera.
 
 **At the end:**
 
-> "0.83 to a perfect 1.0, on a domain it had never seen, unattended."
+> "It had never seen this domain, and it improved its own agent unattended.
+> On a good draw it reaches a perfect 1.0 — though as I'll say in a moment,
+> not every run does."
 
 **Show:** the final block printing the system prompt it wrote.
 
@@ -87,26 +89,36 @@ the AO-usage requirement is evidenced on camera.
 
 ---
 
-## 2:30 – 2:50 · Honesty section
+## 2:30 – 2:55 · Honesty section — *do not cut this*
 
-> "Two things I'd want a judge to know.
+> "Now the part I most want you to hear.
 >
-> First, single runs are noisy — this model can't be pinned to temperature zero,
-> so the headline numbers are means across three repeats with the range stated,
-> not a single lucky curve.
+> I first reported three runs of that unseen domain, all reaching a perfect 1.0.
+> Then I did a release check from a clean clone, and it scored 0.58 with zero
+> improvement. One extra sample destroyed my headline.
 >
-> Second, the scheduler originally showed a much flashier climb, 0.17 to 0.67.
-> When I looked into it, most of that was the system fighting a bug in my own
-> framework — a tool-iteration cap was cutting its search off. I fixed the cap
-> and the honest curve is smaller. That's the one in the report."
+> So I took eight runs per domain. The real numbers are: mean gain of about
+> ten points on the unseen domain, ten on ticket routing, six on invoices — and
+> **six runs out of twenty-four improve nothing at all**.
+>
+> That's a worse result than what I had before. It's also the true one. A system
+> whose whole job is measuring agents honestly has no business reporting its own
+> performance from a lucky sample."
+
+**Show:** the results table in `SUBMISSION.md`, or `report/variance.json`.
+
+> "There's a second one like that. The scheduler originally showed a dramatic
+> 0.17 to 0.67 climb — and most of it turned out to be the system fighting a bug
+> in my own framework, a tool-iteration cap cutting its search off. I fixed the
+> cap; the honest curve is smaller. That's the one in the report."
 
 ---
 
-## 2:50 – 3:00 · Close
+## 2:55 – 3:05 · Close
 
 > "Three domains, three different shapes, one unchanged system. It improves on
-> all three, it catches its own regressions, and it works on a task it was never
-> built for.
+> all three on average, it catches its own regressions, and it works on a task
+> it was never built for — measured over twenty-four runs, not a lucky one.
 >
 > Built end to end in AO."
 
@@ -124,5 +136,6 @@ the AO-usage requirement is evidenced on camera.
 - Do not claim the system is autonomous *end to end* — a human wrote the domains
   and eval functions. The claim is that the **agent design and improvement** is
   autonomous. Overclaiming is the fastest way to lose credibility in Q&A.
-- Do not show the `$0.00` cost figures without saying they're token-based.
+- Cost figures are real only for runs recorded after pricing was set in
+  `llm.py`; older logs show $0.00. Say so if the number is on screen.
 - Do not read the whole generated system prompt aloud — show it, summarise it.
