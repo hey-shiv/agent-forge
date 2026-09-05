@@ -36,11 +36,15 @@ load_dotenv(_PROJECT_ROOT / ".env")
 
 DEFAULT_MODEL = os.environ.get("AGENT_FORGE_MODEL", "gpt-5-nano")
 
-# Fill these in from OpenAI's current pricing page to convert tokens into
-# dollars. Left at zero deliberately rather than guessing — Track 1 scores on
-# cost, and an invented number is worse than an honest token count.
-USD_PER_1M_INPUT_TOKENS = 0.0
-USD_PER_1M_OUTPUT_TOKENS = 0.0
+# gpt-5-nano standard API pricing, from OpenAI's official pricing page
+# (developers.openai.com/api/docs/pricing), checked 2026-09-06.
+#
+# NOTE: a run's cost is computed live from its own token counts as it executes,
+# so only runs recorded AFTER this constant was set carry real dollar figures.
+# Runs in runs/ from before then stored total_cost_usd = 0.00 and cannot be
+# corrected retroactively — the per-call token counts were never persisted.
+USD_PER_1M_INPUT_TOKENS = 0.05
+USD_PER_1M_OUTPUT_TOKENS = 0.40
 
 _client = None
 
