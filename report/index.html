@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Forge — Results</title>
+<style>
+  :root {
+    --surface:  #fcfcfb;
+    --page:     #f4f4f2;
+    --ink:      #0b0b0b;
+    --ink-2:    #52514e;
+    --ink-3:    #78776f;
+    --rule:     #e2e2dd;
+    --grid:     #e8e8e3;
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --surface: #1a1a19; --page: #121211; --ink: #ffffff;
+      --ink-2: #c3c2b7; --ink-3: #8f8e85; --rule: #33332f; --grid: #2b2b28;
+      --series-1: #3987e5; --series-2: #d95926;
+    }
+  }
+  :root[data-theme="dark"] {
+    --surface: #1a1a19; --page: #121211; --ink: #ffffff;
+    --ink-2: #c3c2b7; --ink-3: #8f8e85; --rule: #33332f; --grid: #2b2b28;
+    --series-1: #3987e5; --series-2: #d95926;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background: var(--page); color: var(--ink);
+         font-family: var(--font); font-size:15px; line-height:1.6; }
+  .wrap { max-width: 1000px; margin:0 auto; padding: 56px 24px 100px; }
+  header { margin-bottom: 44px; }
+  h1 { font-size: 32px; line-height:1.15; margin:0 0 10px; letter-spacing:-0.02em; }
+  .sub { color: var(--ink-2); margin:0; max-width: 62ch; }
+  h2 { font-size: 22px; margin: 0 0 20px; letter-spacing:-0.01em; }
+  section.domain { background: var(--surface); border:1px solid var(--rule);
+                    border-radius:10px; padding:26px; margin-bottom:30px; }
+  .tiles { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:24px; }
+  .tile { background: var(--page); border:1px solid var(--rule);
+           border-radius:8px; padding:11px 15px; min-width:104px; }
+  .tile .label { display:block; font-size:10.5px; letter-spacing:0.09em;
+                  text-transform:uppercase; color: var(--ink-3); }
+  .tile .value { display:block; font-family: var(--mono); font-size:21px;
+                  font-variant-numeric: tabular-nums; margin-top:3px; }
+  .tile.accent .value { color: var(--series-1); }
+  .tile .range { display:block; font-family: var(--mono); font-size:10.5px;
+                  color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  td.shape { font-size:12.5px; }
+  h3 { font-size:15px; margin:26px 0 14px; color: var(--ink-2);
+        letter-spacing:-0.005em; }
+  figure { margin: 0 0 26px; }
+  svg { display:block; width:100%; height:auto; overflow:visible; }
+  figcaption { font-size:13px; color: var(--ink-3); margin-top:8px; max-width:66ch; }
+  .tick { font-family: var(--mono); font-size:10.5px; fill: var(--ink-3); }
+  .pt   { font-family: var(--mono); font-size:11px; fill: var(--ink-2); }
+  .table-wrap { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:13px; min-width:1180px; }
+  th { text-align:left; font-size:10.5px; letter-spacing:0.08em;
+        text-transform:uppercase; color: var(--ink-3); font-weight:600;
+        padding:0 12px 9px 0; border-bottom:1px solid var(--ink); }
+  td { padding:11px 12px 11px 0; border-bottom:1px solid var(--rule);
+        vertical-align:top; color: var(--ink-2); }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums;
+            color: var(--ink); white-space:nowrap; }
+  tr.rolled td { opacity:0.62; }
+  .why { min-width:260px; }
+  .why em { color: var(--ink-3); }
+  .chips { min-width:330px; }
+  .chip { display:inline-block; font-family: var(--mono); font-size:10.5px;
+           background: var(--page); border:1px solid var(--rule);
+           border-radius:4px; padding:2px 6px; margin:0 4px 4px 0;
+           white-space:nowrap; }
+  .chip.none { color: var(--ink-3); }
+  code { font-family: var(--mono); font-size:0.88em; }
+  .src { font-size:11.5px; color: var(--ink-3); margin:14px 0 0; }
+  .overview { background: var(--surface); border:1px solid var(--rule);
+               border-radius:10px; padding:26px; margin-bottom:30px; }
+  .overview table { min-width:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Agent Forge — results</h1>
+    <p class="sub">A system that designs an agent from a goal and a tool list,
+    runs it, clusters its failures into named modes, and rewrites the agent to
+    target the largest cluster. Every number below was produced by the loop
+    running unattended; rounds that scored worse than the best so far were
+    discarded rather than carried forward. Numbers are means over 3 repeat runs with the full range shown, because this model cannot be pinned to a fixed temperature and a single curve is a sample, not a measurement.</p>
+  </header>
+
+  <div class="overview">
+    <h2>Overview</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Shape</th><th>Round 0 mean</th><th>Best mean</th><th>Gain mean</th><th>Gain range</th><th>Repeats</th></tr></thead>
+        <tbody><tr><td>invoice_extraction</td><td class='shape'>structured extraction</td><td class='num'>0.911</td><td class='num'>0.951</td><td class='num'>+0.040</td><td class='num'>+0.000 – +0.093</td><td class='num'>3</td></tr><tr><td>meeting_scheduler</td><td class='shape'>constraint satisfaction &nbsp;<b>· unseen</b></td><td class='num'>0.917</td><td class='num'>1.000</td><td class='num'>+0.083</td><td class='num'>+0.000 – +0.167</td><td class='num'>3</td></tr><tr><td>ticket_routing</td><td class='shape'>classification</td><td class='num'>0.815</td><td class='num'>0.926</td><td class='num'>+0.111</td><td class='num'>+0.056 – +0.167</td><td class='num'>3</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  
+    <section class="domain">
+      <h2>invoice_extraction</h2>
+
+      <div class="tiles">
+        <div class="tile"><span class="label">Round 0 mean</span>
+          <span class="value">0.911</span>
+          <span class="range">0.840–0.947</span></div>
+        <div class="tile accent"><span class="label">Best mean</span>
+          <span class="value">0.951</span>
+          <span class="range">0.933–0.973</span></div>
+        <div class="tile"><span class="label">Gain mean</span>
+          <span class="value">+0.040</span>
+          <span class="range">+0.000–+0.093</span></div>
+        <div class="tile"><span class="label">Repeats</span>
+          <span class="value">3</span></div>
+      </div>
+
+      <figure>
+        <svg viewBox="0 0 560 250" role="img" aria-label="Accuracy by round for 3 repeat runs on shared axes."><line x1="52" y1="208.0" x2="540" y2="208.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="212.0" text-anchor="end" class="tick">0.69</text><line x1="52" y1="161.5" x2="540" y2="161.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="165.5" text-anchor="end" class="tick">0.77</text><line x1="52" y1="115.0" x2="540" y2="115.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="119.0" text-anchor="end" class="tick">0.84</text><line x1="52" y1="68.5" x2="540" y2="68.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="72.5" text-anchor="end" class="tick">0.92</text><line x1="52" y1="22.0" x2="540" y2="22.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="26.0" text-anchor="end" class="tick">1.00</text><text x="52.0" y="228" text-anchor="middle" class="tick">R0</text><text x="214.7" y="228" text-anchor="middle" class="tick">R1</text><text x="377.3" y="228" text-anchor="middle" class="tick">R2</text><text x="540.0" y="228" text-anchor="middle" class="tick">R3</text><polyline points="52.0,53.6 214.7,53.6 377.3,61.6 540.0,85.3" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="53.6" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="53.6" r="13" fill="transparent"><title>repeat 1, round 0 — 0.947</title></circle><circle cx="214.7" cy="53.6" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="53.6" r="13" fill="transparent"><title>repeat 1, round 1 — 0.947</title></circle><circle cx="377.3" cy="61.6" r="4" fill="var(--surface)" stroke="var(--series-1)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="377.3" cy="61.6" r="13" fill="transparent"><title>repeat 1, round 2 — 0.933 (rolled back)</title></circle><circle cx="540.0" cy="85.3" r="4" fill="var(--surface)" stroke="var(--series-1)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="540.0" cy="85.3" r="13" fill="transparent"><title>repeat 1, round 3 — 0.893 (rolled back)</title></circle><polyline points="52.0,53.6 214.7,37.9 377.3,37.9 540.0,53.6" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="53.6" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="53.6" r="13" fill="transparent"><title>repeat 2, round 0 — 0.947</title></circle><circle cx="214.7" cy="37.9" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="37.9" r="13" fill="transparent"><title>repeat 2, round 1 — 0.973</title></circle><circle cx="377.3" cy="37.9" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="377.3" cy="37.9" r="13" fill="transparent"><title>repeat 2, round 2 — 0.973</title></circle><circle cx="540.0" cy="53.6" r="4" fill="var(--surface)" stroke="var(--series-1)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="540.0" cy="53.6" r="13" fill="transparent"><title>repeat 2, round 3 — 0.947 (rolled back)</title></circle><polyline points="52.0,117.0 214.7,61.6 377.3,148.6 540.0,77.4" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="117.0" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="117.0" r="13" fill="transparent"><title>repeat 3, round 0 — 0.840</title></circle><circle cx="214.7" cy="61.6" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="61.6" r="13" fill="transparent"><title>repeat 3, round 1 — 0.933</title></circle><circle cx="377.3" cy="148.6" r="4" fill="var(--surface)" stroke="var(--series-1)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="377.3" cy="148.6" r="13" fill="transparent"><title>repeat 3, round 2 — 0.787 (rolled back)</title></circle><circle cx="540.0" cy="77.4" r="4" fill="var(--surface)" stroke="var(--series-1)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="540.0" cy="77.4" r="13" fill="transparent"><title>repeat 3, round 3 — 0.907 (rolled back)</title></circle></svg>
+        <figcaption>All 3 repeat runs on shared axes. Hollow, dashed
+        markers are rounds whose change scored worse than the best so far and was
+        discarded. The spread between curves is real: this model cannot be pinned
+        to a fixed temperature, so round 0 alone varies by
+        0.107 across identical runs.</figcaption>
+      </figure>
+
+      <h3>Detail — the repeat with the most headroom</h3>
+
+      <figure>
+        <svg viewBox="0 0 560 120" role="img" aria-label="Average latency per task by round, in seconds."><line x1="52" y1="90" x2="540" y2="90" stroke="var(--grid)" stroke-width="1"/><path d="M93.0,90.0 L93.0,68.8 Q93.0,64.8 97.0,64.8 L129.0,64.8 Q133.0,64.8 133.0,68.8 L133.0,90.0 Z" fill="var(--series-1)" opacity="0.85"><title>Round 0 — 2.96s average</title></path><text x="113.0" y="108.0" text-anchor="middle" class="tick">R0</text><text x="113.0" y="59.8" text-anchor="middle" class="pt">3.0s</text><path d="M215.0,90.0 L215.0,72.0 Q215.0,68.0 219.0,68.0 L251.0,68.0 Q255.0,68.0 255.0,72.0 L255.0,90.0 Z" fill="var(--series-1)" opacity="0.85"><title>Round 1 — 2.59s average</title></path><text x="235.0" y="108.0" text-anchor="middle" class="tick">R1</text><text x="235.0" y="63.0" text-anchor="middle" class="pt">2.6s</text><path d="M337.0,90.0 L337.0,30.7 Q337.0,26.7 341.0,26.7 L373.0,26.7 Q377.0,26.7 377.0,30.7 L377.0,90.0 Z" fill="var(--series-1)" opacity="0.85"><title>Round 2 — 7.44s average</title></path><text x="357.0" y="108.0" text-anchor="middle" class="tick">R2</text><text x="357.0" y="21.7" text-anchor="middle" class="pt">7.4s</text><path d="M459.0,90.0 L459.0,65.1 Q459.0,61.1 463.0,61.1 L495.0,61.1 Q499.0,61.1 499.0,65.1 L499.0,90.0 Z" fill="var(--series-1)" opacity="0.85"><title>Round 3 — 3.40s average</title></path><text x="479.0" y="108.0" text-anchor="middle" class="tick">R3</text><text x="479.0" y="56.1" text-anchor="middle" class="pt">3.4s</text></svg>
+        <figcaption>Average latency per task, for the run tabulated below. Shown
+        separately rather than on a second axis: accuracy and speed move
+        independently and a shared frame would imply a relationship the data does
+        not support.</figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Round</th><th>Spec</th><th>Orchestration</th><th>Accuracy</th>
+            <th>Reliab.</th><th>Latency</th><th>Failure clusters</th>
+            <th>Change the system made, and why</th>
+          </tr></thead>
+          <tbody><tr class=""><td class="num">0</td><td class="num">v0</td><td><code>single-shot</code></td><td class="num">0.840</td><td class="num">1.00</td><td class="num">2.96s</td><td class="chips"><span class="chip">date_wrong_or_not_iso_format <b>8</b></span><span class="chip">currency_wrong_or_not_iso_code <b>3</b></span><span class="chip">total_wrong_likely_subtotal_or_pre_discount <b>1</b></span></td><td class="why">initial architecture</td></tr><tr class=""><td class="num">1</td><td class="num">v1</td><td><code>react-loop</code></td><td class="num">0.933</td><td class="num">1.00</td><td class="num">2.59s</td><td class="chips"><span class="chip">total_wrong_likely_subtotal_or_pre_discount <b>3</b></span><span class="chip">date_wrong_or_not_iso_format <b>1</b></span><span class="chip">currency_wrong_or_not_iso_code <b>1</b></span></td><td class="why">Switch orchestration to react-loop to enable tool-assisted date normalization and currency validation, targeting the date ISO-format and currency-code failure clusters.</td></tr><tr class="rolled"><td class="num">2</td><td class="num">v2</td><td><code>planner-executor</code></td><td class="num">0.787</td><td class="num">0.87</td><td class="num">7.44s</td><td class="chips"><span class="chip">total_wrong_likely_subtotal_or_pre_discount <b>2</b></span><span class="chip">agent_crashed <b>2</b></span><span class="chip">currency_wrong_or_not_iso_code <b>2</b></span><span class="chip">invoice_number_mismatch <b>1</b></span><span class="chip">date_wrong_or_not_iso_format <b>1</b></span></td><td class="why">Switch orchestration from react-loop to planner-executor to target the subtotal/pre-discount calculation failure by enabling explicit step-by-step planning and execution. <em>— rolled back</em></td></tr><tr class="rolled"><td class="num">3</td><td class="num">v2</td><td><code>single-shot</code></td><td class="num">0.907</td><td class="num">1.00</td><td class="num">3.40s</td><td class="chips"><span class="chip">total_wrong_likely_subtotal_or_pre_discount <b>3</b></span><span class="chip">date_wrong_or_not_iso_format <b>2</b></span><span class="chip">currency_wrong_or_not_iso_code <b>1</b></span><span class="chip">missed_total <b>1</b></span></td><td class="why">Switch orchestration to single-shot to target the subtotal/pre-discount total mismatch by enforcing inline total validation instead of multi-step planning. <em>— rolled back</em></td></tr></tbody>
+        </table>
+      </div>
+      <p class="src">detail run: <code>runs/invoice_extraction-20260905-233540.json</code>
+        &nbsp;·&nbsp; 2 round(s) rolled back</p>
+    </section>
+    
+    <section class="domain">
+      <h2>meeting_scheduler</h2>
+
+      <div class="tiles">
+        <div class="tile"><span class="label">Round 0 mean</span>
+          <span class="value">0.917</span>
+          <span class="range">0.833–1.000</span></div>
+        <div class="tile accent"><span class="label">Best mean</span>
+          <span class="value">1.000</span>
+          <span class="range">1.000–1.000</span></div>
+        <div class="tile"><span class="label">Gain mean</span>
+          <span class="value">+0.083</span>
+          <span class="range">+0.000–+0.167</span></div>
+        <div class="tile"><span class="label">Repeats</span>
+          <span class="value">3</span></div>
+      </div>
+
+      <figure>
+        <svg viewBox="0 0 560 250" role="img" aria-label="Accuracy by round for 3 repeat runs on shared axes."><line x1="52" y1="208.0" x2="540" y2="208.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="212.0" text-anchor="end" class="tick">0.65</text><line x1="52" y1="161.5" x2="540" y2="161.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="165.5" text-anchor="end" class="tick">0.74</text><line x1="52" y1="115.0" x2="540" y2="115.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="119.0" text-anchor="end" class="tick">0.82</text><line x1="52" y1="68.5" x2="540" y2="68.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="72.5" text-anchor="end" class="tick">0.91</text><line x1="52" y1="22.0" x2="540" y2="22.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="26.0" text-anchor="end" class="tick">1.00</text><text x="52.0" y="228" text-anchor="middle" class="tick">R0</text><text x="214.7" y="228" text-anchor="middle" class="tick">R1</text><text x="377.3" y="228" text-anchor="middle" class="tick">R2</text><text x="540.0" y="228" text-anchor="middle" class="tick">R3</text><polyline points="52.0,22.0 214.7,110.6 377.3,154.9 540.0,110.6" fill="none" stroke="var(--series-2)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="22.0" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="22.0" r="13" fill="transparent"><title>repeat 1, round 0 — 1.000</title></circle><circle cx="214.7" cy="110.6" r="4" fill="var(--surface)" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="214.7" cy="110.6" r="13" fill="transparent"><title>repeat 1, round 1 — 0.833 (rolled back)</title></circle><circle cx="377.3" cy="154.9" r="4" fill="var(--surface)" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="377.3" cy="154.9" r="13" fill="transparent"><title>repeat 1, round 2 — 0.750 (rolled back)</title></circle><circle cx="540.0" cy="110.6" r="4" fill="var(--surface)" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="540.0" cy="110.6" r="13" fill="transparent"><title>repeat 1, round 3 — 0.833 (rolled back)</title></circle><polyline points="52.0,110.6 214.7,66.3 377.3,154.9 540.0,22.0" fill="none" stroke="var(--series-2)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="110.6" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="110.6" r="13" fill="transparent"><title>repeat 2, round 0 — 0.833</title></circle><circle cx="214.7" cy="66.3" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="66.3" r="13" fill="transparent"><title>repeat 2, round 1 — 0.917</title></circle><circle cx="377.3" cy="154.9" r="4" fill="var(--surface)" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="377.3" cy="154.9" r="13" fill="transparent"><title>repeat 2, round 2 — 0.750 (rolled back)</title></circle><circle cx="540.0" cy="22.0" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="540.0" cy="22.0" r="13" fill="transparent"><title>repeat 2, round 3 — 1.000</title></circle><polyline points="52.0,66.3 214.7,110.6 377.3,66.3 540.0,22.0" fill="none" stroke="var(--series-2)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="66.3" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="66.3" r="13" fill="transparent"><title>repeat 3, round 0 — 0.917</title></circle><circle cx="214.7" cy="110.6" r="4" fill="var(--surface)" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="214.7" cy="110.6" r="13" fill="transparent"><title>repeat 3, round 1 — 0.833 (rolled back)</title></circle><circle cx="377.3" cy="66.3" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="377.3" cy="66.3" r="13" fill="transparent"><title>repeat 3, round 2 — 0.917</title></circle><circle cx="540.0" cy="22.0" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="540.0" cy="22.0" r="13" fill="transparent"><title>repeat 3, round 3 — 1.000</title></circle></svg>
+        <figcaption>All 3 repeat runs on shared axes. Hollow, dashed
+        markers are rounds whose change scored worse than the best so far and was
+        discarded. The spread between curves is real: this model cannot be pinned
+        to a fixed temperature, so round 0 alone varies by
+        0.167 across identical runs.</figcaption>
+      </figure>
+
+      <h3>Detail — the repeat with the most headroom</h3>
+
+      <figure>
+        <svg viewBox="0 0 560 120" role="img" aria-label="Average latency per task by round, in seconds."><line x1="52" y1="90" x2="540" y2="90" stroke="var(--grid)" stroke-width="1"/><path d="M93.0,90.0 L93.0,38.1 Q93.0,34.1 97.0,34.1 L129.0,34.1 Q133.0,34.1 133.0,38.1 L133.0,90.0 Z" fill="var(--series-2)" opacity="0.85"><title>Round 0 — 8.82s average</title></path><text x="113.0" y="108.0" text-anchor="middle" class="tick">R0</text><text x="113.0" y="29.1" text-anchor="middle" class="pt">8.8s</text><path d="M215.0,90.0 L215.0,44.0 Q215.0,40.0 219.0,40.0 L251.0,40.0 Q255.0,40.0 255.0,44.0 L255.0,90.0 Z" fill="var(--series-2)" opacity="0.85"><title>Round 1 — 7.89s average</title></path><text x="235.0" y="108.0" text-anchor="middle" class="tick">R1</text><text x="235.0" y="35.0" text-anchor="middle" class="pt">7.9s</text><path d="M337.0,90.0 L337.0,30.7 Q337.0,26.7 341.0,26.7 L373.0,26.7 Q377.0,26.7 377.0,30.7 L377.0,90.0 Z" fill="var(--series-2)" opacity="0.85"><title>Round 2 — 10.00s average</title></path><text x="357.0" y="108.0" text-anchor="middle" class="tick">R2</text><text x="357.0" y="21.7" text-anchor="middle" class="pt">10.0s</text><path d="M459.0,90.0 L459.0,46.7 Q459.0,42.7 463.0,42.7 L495.0,42.7 Q499.0,42.7 499.0,46.7 L499.0,90.0 Z" fill="var(--series-2)" opacity="0.85"><title>Round 3 — 7.47s average</title></path><text x="479.0" y="108.0" text-anchor="middle" class="tick">R3</text><text x="479.0" y="37.7" text-anchor="middle" class="pt">7.5s</text></svg>
+        <figcaption>Average latency per task, for the run tabulated below. Shown
+        separately rather than on a second axis: accuracy and speed move
+        independently and a shared frame would imply a relationship the data does
+        not support.</figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Round</th><th>Spec</th><th>Orchestration</th><th>Accuracy</th>
+            <th>Reliab.</th><th>Latency</th><th>Failure clusters</th>
+            <th>Change the system made, and why</th>
+          </tr></thead>
+          <tbody><tr class=""><td class="num">0</td><td class="num">v0</td><td><code>react-loop</code></td><td class="num">0.833</td><td class="num">1.00</td><td class="num">8.82s</td><td class="chips"><span class="chip">no_parseable_time_returned <b>1</b></span><span class="chip">valid_slot_but_not_the_earliest <b>1</b></span></td><td class="why">initial architecture</td></tr><tr class=""><td class="num">1</td><td class="num">v1</td><td><code>react-loop</code></td><td class="num">0.917</td><td class="num">1.00</td><td class="num">7.89s</td><td class="chips"><span class="chip">no_parseable_time_returned <b>1</b></span></td><td class="why">Change search increments to 15-minute steps to ensure earliest valid slot is found and reduce &#x27;valid_slot_but_not_the_earliest&#x27; failures.</td></tr><tr class="rolled"><td class="num">2</td><td class="num">v2</td><td><code>planner-executor</code></td><td class="num">0.750</td><td class="num">0.75</td><td class="num">10.00s</td><td class="chips"><span class="chip">agent_crashed <b>3</b></span></td><td class="why">Switch orchestration from react-loop to planner-executor to address persistent no_parseable_time_returned failures by introducing a planning step that robustly generates and validates candidate times before tool checks. <em>— rolled back</em></td></tr><tr class=""><td class="num">3</td><td class="num">v2</td><td><code>react-loop</code></td><td class="num">1.000</td><td class="num">1.00</td><td class="num">7.47s</td><td class="chips"><span class="chip none">none</span></td><td class="why">Add a single retry-on-tool-failure heuristic to react-loop to address intermittent tool crashes by retrying a tool call once before moving on to the next candidate.</td></tr></tbody>
+        </table>
+      </div>
+      <p class="src">detail run: <code>runs/meeting_scheduler-20260905-234040.json</code>
+        &nbsp;·&nbsp; 1 round(s) rolled back</p>
+    </section>
+    
+    <section class="domain">
+      <h2>ticket_routing</h2>
+
+      <div class="tiles">
+        <div class="tile"><span class="label">Round 0 mean</span>
+          <span class="value">0.815</span>
+          <span class="range">0.778–0.833</span></div>
+        <div class="tile accent"><span class="label">Best mean</span>
+          <span class="value">0.926</span>
+          <span class="range">0.889–0.944</span></div>
+        <div class="tile"><span class="label">Gain mean</span>
+          <span class="value">+0.111</span>
+          <span class="range">+0.056–+0.167</span></div>
+        <div class="tile"><span class="label">Repeats</span>
+          <span class="value">3</span></div>
+      </div>
+
+      <figure>
+        <svg viewBox="0 0 560 250" role="img" aria-label="Accuracy by round for 3 repeat runs on shared axes."><line x1="52" y1="208.0" x2="540" y2="208.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="212.0" text-anchor="end" class="tick">0.68</text><line x1="52" y1="161.5" x2="540" y2="161.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="165.5" text-anchor="end" class="tick">0.76</text><line x1="52" y1="115.0" x2="540" y2="115.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="119.0" text-anchor="end" class="tick">0.84</text><line x1="52" y1="68.5" x2="540" y2="68.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="72.5" text-anchor="end" class="tick">0.92</text><line x1="52" y1="22.0" x2="540" y2="22.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="26.0" text-anchor="end" class="tick">1.00</text><text x="52.0" y="228" text-anchor="middle" class="tick">R0</text><text x="214.7" y="228" text-anchor="middle" class="tick">R1</text><text x="377.3" y="228" text-anchor="middle" class="tick">R2</text><text x="540.0" y="228" text-anchor="middle" class="tick">R3</text><polyline points="52.0,150.3 214.7,54.1 377.3,86.1 540.0,54.1" fill="none" stroke="var(--series-3)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="150.3" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="150.3" r="13" fill="transparent"><title>repeat 1, round 0 — 0.778</title></circle><circle cx="214.7" cy="54.1" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="54.1" r="13" fill="transparent"><title>repeat 1, round 1 — 0.944</title></circle><circle cx="377.3" cy="86.1" r="4" fill="var(--surface)" stroke="var(--series-3)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="377.3" cy="86.1" r="13" fill="transparent"><title>repeat 1, round 2 — 0.889 (rolled back)</title></circle><circle cx="540.0" cy="54.1" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="540.0" cy="54.1" r="13" fill="transparent"><title>repeat 1, round 3 — 0.944</title></circle><polyline points="52.0,118.2 214.7,118.2 377.3,54.1 540.0,54.1" fill="none" stroke="var(--series-3)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="118.2" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="118.2" r="13" fill="transparent"><title>repeat 2, round 0 — 0.833</title></circle><circle cx="214.7" cy="118.2" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="118.2" r="13" fill="transparent"><title>repeat 2, round 1 — 0.833</title></circle><circle cx="377.3" cy="54.1" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="377.3" cy="54.1" r="13" fill="transparent"><title>repeat 2, round 2 — 0.944</title></circle><circle cx="540.0" cy="54.1" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="540.0" cy="54.1" r="13" fill="transparent"><title>repeat 2, round 3 — 0.944</title></circle><polyline points="52.0,118.2 214.7,150.3 377.3,118.2 540.0,86.1" fill="none" stroke="var(--series-3)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="118.2" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="118.2" r="13" fill="transparent"><title>repeat 3, round 0 — 0.833</title></circle><circle cx="214.7" cy="150.3" r="4" fill="var(--surface)" stroke="var(--series-3)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="214.7" cy="150.3" r="13" fill="transparent"><title>repeat 3, round 1 — 0.778 (rolled back)</title></circle><circle cx="377.3" cy="118.2" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="377.3" cy="118.2" r="13" fill="transparent"><title>repeat 3, round 2 — 0.833</title></circle><circle cx="540.0" cy="86.1" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="540.0" cy="86.1" r="13" fill="transparent"><title>repeat 3, round 3 — 0.889</title></circle></svg>
+        <figcaption>All 3 repeat runs on shared axes. Hollow, dashed
+        markers are rounds whose change scored worse than the best so far and was
+        discarded. The spread between curves is real: this model cannot be pinned
+        to a fixed temperature, so round 0 alone varies by
+        0.055 across identical runs.</figcaption>
+      </figure>
+
+      <h3>Detail — the repeat with the most headroom</h3>
+
+      <figure>
+        <svg viewBox="0 0 560 120" role="img" aria-label="Average latency per task by round, in seconds."><line x1="52" y1="90" x2="540" y2="90" stroke="var(--grid)" stroke-width="1"/><path d="M93.0,90.0 L93.0,32.5 Q93.0,28.5 97.0,28.5 L129.0,28.5 Q133.0,28.5 133.0,32.5 L133.0,90.0 Z" fill="var(--series-3)" opacity="0.85"><title>Round 0 — 4.11s average</title></path><text x="113.0" y="108.0" text-anchor="middle" class="tick">R0</text><text x="113.0" y="23.5" text-anchor="middle" class="pt">4.1s</text><path d="M215.0,90.0 L215.0,30.7 Q215.0,26.7 219.0,26.7 L251.0,26.7 Q255.0,26.7 255.0,30.7 L255.0,90.0 Z" fill="var(--series-3)" opacity="0.85"><title>Round 1 — 4.23s average</title></path><text x="235.0" y="108.0" text-anchor="middle" class="tick">R1</text><text x="235.0" y="21.7" text-anchor="middle" class="pt">4.2s</text><path d="M337.0,90.0 L337.0,65.3 Q337.0,61.3 341.0,61.3 L373.0,61.3 Q377.0,61.3 377.0,65.3 L377.0,90.0 Z" fill="var(--series-3)" opacity="0.85"><title>Round 2 — 1.92s average</title></path><text x="357.0" y="108.0" text-anchor="middle" class="tick">R2</text><text x="357.0" y="56.3" text-anchor="middle" class="pt">1.9s</text><path d="M459.0,90.0 L459.0,64.6 Q459.0,60.6 463.0,60.6 L495.0,60.6 Q499.0,60.6 499.0,64.6 L499.0,90.0 Z" fill="var(--series-3)" opacity="0.85"><title>Round 3 — 1.96s average</title></path><text x="479.0" y="108.0" text-anchor="middle" class="tick">R3</text><text x="479.0" y="55.6" text-anchor="middle" class="pt">2.0s</text></svg>
+        <figcaption>Average latency per task, for the run tabulated below. Shown
+        separately rather than on a second axis: accuracy and speed move
+        independently and a shared frame would imply a relationship the data does
+        not support.</figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Round</th><th>Spec</th><th>Orchestration</th><th>Accuracy</th>
+            <th>Reliab.</th><th>Latency</th><th>Failure clusters</th>
+            <th>Change the system made, and why</th>
+          </tr></thead>
+          <tbody><tr class=""><td class="num">0</td><td class="num">v0</td><td><code>planner-executor</code></td><td class="num">0.778</td><td class="num">1.00</td><td class="num">4.11s</td><td class="chips"><span class="chip">wrong_label_on_clear_ticket <b>2</b></span><span class="chip">wrong_label_on_multi_issue_ticket <b>2</b></span></td><td class="why">initial architecture</td></tr><tr class=""><td class="num">1</td><td class="num">v1</td><td><code>planner-executor</code></td><td class="num">0.944</td><td class="num">1.00</td><td class="num">4.23s</td><td class="chips"><span class="chip">wrong_label_on_clear_ticket <b>1</b></span></td><td class="why">Clarified multi-issue detection rule to only treat a ticket as multi-issue when there are clearly described distinct issues, addressing false positives on clear-ticket routing.</td></tr><tr class="rolled"><td class="num">2</td><td class="num">v2</td><td><code>react-loop</code></td><td class="num">0.889</td><td class="num">1.00</td><td class="num">1.92s</td><td class="chips"><span class="chip">wrong_label_on_clear_ticket <b>1</b></span><span class="chip">wrong_label_on_multi_issue_ticket <b>1</b></span></td><td class="why">Switch orchestration from planner-executor to react-loop to address persistent wrong_label_on_clear_ticket failures by enabling dynamic tool use and iterative clarification. <em>— rolled back</em></td></tr><tr class=""><td class="num">3</td><td class="num">v2</td><td><code>react-loop</code></td><td class="num">0.944</td><td class="num">1.00</td><td class="num">1.96s</td><td class="chips"><span class="chip">wrong_label_on_clear_ticket <b>1</b></span></td><td class="why">Changed orchestration from planner-executor to react-loop to address the persistent wrong_label_on_clear_ticket failures by enabling iterative clarification and dynamic tool use.</td></tr></tbody>
+        </table>
+      </div>
+      <p class="src">detail run: <code>runs/ticket_routing-20260905-233101.json</code>
+        &nbsp;·&nbsp; 1 round(s) rolled back</p>
+    </section>
+    
+</div>
+</body>
+</html>

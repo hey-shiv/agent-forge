@@ -1,0 +1,20 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Superseded runs kept only for local reference
+runs_archive/
+
+# macOS
+.DS_Store
+
+# NOTE: runs/ and report/ are deliberately NOT ignored. They are the evidence
+# for the submission — the per-round logs a judge can audit, and the generated
+# results page. Ignoring them would leave the claims unverifiable.

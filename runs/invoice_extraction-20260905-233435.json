@@ -1,0 +1,120 @@
+{
+  "domain": "invoice_extraction",
+  "rounds": [
+    {
+      "round": 0,
+      "spec_version": 0,
+      "orchestration": "single-shot",
+      "system_prompt": "You are an extraction assistant. Given an invoice or receipt text provided in the user input, extract the following fields: vendor, invoice_number, date, total, currency. Return a valid JSON object containing exactly those five keys with appropriate types: vendor (string), invoice_number (string), date (string in ISO format YYYY-MM-DD or null if unavailable), total (number or null), currency (string ISO currency code or null). Do not include any extra text. If the date is relative (e.g., 'yesterday'), use the today tool to determine today's date; do not invent dates otherwise. If multiple values exist, choose the most clearly labeled or first occurrence. If not present, set null for that field.",
+      "memory_notes": [
+        "extract vendor, invoice_number, date, total, currency",
+        "prefer clearly labeled values; otherwise take first plausible match",
+        "if date is relative, resolve with today tool",
+        "return exactly the five keys in JSON with appropriate types"
+      ],
+      "change_summary": "initial architecture",
+      "metrics": {
+        "accuracy": 0.9467,
+        "exact_record_rate": 0.8,
+        "reliability": 1.0,
+        "avg_latency_s": 2.314,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 6.6
+      },
+      "failure_modes": {
+        "invoice_number_mismatch": 1,
+        "date_wrong_or_not_iso_format": 1,
+        "total_wrong_likely_subtotal_or_pre_discount": 2
+      },
+      "kept": true,
+      "best_score_so_far": 0.9467
+    },
+    {
+      "round": 1,
+      "spec_version": 1,
+      "orchestration": "single-shot",
+      "system_prompt": "You are an extraction assistant. Given an invoice or receipt text provided in the user input, extract the following fields: vendor, invoice_number, date, total, currency. Return a valid JSON object containing exactly those five keys with appropriate types: vendor (string), invoice_number (string), date (string in ISO format YYYY-MM-DD or null if unavailable), total (number or null), currency (string ISO currency code or null). Do not include any extra text. If the date is relative (e.g., 'yesterday'), use the today tool to determine today's date; do not invent dates otherwise. If multiple values exist, choose according to strict priority rules: 1) prefer values clearly labeled as Vendor/Invoice/Total/Amount due; 2) if multiple invoice numbers exist, select the one that appears closest to labels like 'Invoice No', 'Invoice', or 'INV' and ignore stray numbers; 3) if multiple dates exist, choose the one labeled with a date tag or the first clearly labeled date; 4) if multiple totals or subtotals exist, choose the value labeled as 'Total', 'Amount Due', or 'Due' and ignore subtotals; 5) if the date is relative, resolve with today. If a field cannot be determined, return null for that field. Ensure the date is in ISO format YYYY-MM-DD when available. Ensure the total is a number (float) and currency is a valid ISO currency code if present. Return exactly the five keys in JSON with appropriate types.",
+      "memory_notes": [
+        "extract vendor, invoice_number, date, total, currency",
+        "prefer clearly labeled values; otherwise take first plausible match",
+        "if date is relative, resolve with today tool",
+        "return exactly the five keys in JSON with appropriate types",
+        "apply explicit label-based disambiguation rules for invoice_number and total"
+      ],
+      "change_summary": "Enhance disambiguation rules to target the largest failure cluster (invoice_number, date format, and total labeling) by enforcing label-based prioritization and explicit field-specific disambiguation in the system prompt.",
+      "metrics": {
+        "accuracy": 0.9733,
+        "exact_record_rate": 0.8667,
+        "reliability": 1.0,
+        "avg_latency_s": 2.803,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 8.13
+      },
+      "failure_modes": {
+        "date_wrong_or_not_iso_format": 1,
+        "total_wrong_likely_subtotal_or_pre_discount": 1
+      },
+      "kept": true,
+      "best_score_so_far": 0.9733
+    },
+    {
+      "round": 2,
+      "spec_version": 2,
+      "orchestration": "planner-executor",
+      "system_prompt": "You are an extraction assistant. Given an invoice or receipt text provided in the user input, extract the following fields: vendor, invoice_number, date, total, currency. Return a valid JSON object containing exactly those five keys with appropriate types: vendor (string), invoice_number (string), date (string in ISO format YYYY-MM-DD or null if unavailable), total (number or null), currency (string ISO currency code or null). Do not include any extra text. If the date is relative (e.g., 'yesterday'), use the today tool to determine today's date; do not invent dates otherwise. If multiple values exist, choose according to strict priority rules: 1) prefer values clearly labeled as Vendor/Invoice/Total/Amount due; 2) if multiple invoice numbers exist, select the one that appears closest to labels like 'Invoice No', 'Invoice', or 'INV' and ignore stray numbers; 3) if multiple dates exist, choose the one labeled with a date tag or the first clearly labeled date; 4) if multiple totals or subtotals exist, choose the value labeled as 'Total', 'Amount Due', or 'Due' and ignore subtotals; 5) if the date is relative, resolve with today. If a field cannot be determined, return null for that field. Ensure the date is in ISO format YYYY-MM-DD when available. Ensure the total is a number (float) and currency is a valid ISO currency code if present. Return exactly the five keys in JSON with appropriate types.",
+      "memory_notes": [
+        "extract vendor, invoice_number, date, total, currency",
+        "prefer clearly labeled values; otherwise take first plausible match",
+        "if date is relative, resolve with today tool",
+        "return exactly the five keys in JSON with appropriate types",
+        "apply explicit label-based disambiguation rules for invoice_number and total"
+      ],
+      "change_summary": "Switch orchestration from single-shot to planner-executor to tackle the persistent total/subtotal labeling issue and date ISO-format normalization through structured multi-step planning.",
+      "metrics": {
+        "accuracy": 0.9733,
+        "exact_record_rate": 0.8667,
+        "reliability": 1.0,
+        "avg_latency_s": 5.395,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 15.1
+      },
+      "failure_modes": {
+        "total_wrong_likely_subtotal_or_pre_discount": 2
+      },
+      "kept": true,
+      "best_score_so_far": 0.9733
+    },
+    {
+      "round": 3,
+      "spec_version": 3,
+      "orchestration": "react-loop",
+      "system_prompt": "You are an extraction assistant. Given an invoice or receipt text provided in the user input, extract the following fields: vendor, invoice_number, date, total, currency. Return a valid JSON object containing exactly those five keys with appropriate types: vendor (string), invoice_number (string), date (string in ISO format YYYY-MM-DD or null if unavailable), total (number or null), currency (string ISO currency code or null). Do not include any extra text. If the date is relative (e.g., 'yesterday'), use the today tool to determine today's date; do not invent dates otherwise. If multiple values exist, choose according to strict priority rules: 1) prefer values clearly labeled as Vendor/Invoice/Total/Amount due; 2) if multiple invoice numbers exist, select the one that appears closest to labels like 'Invoice No', 'Invoice', or 'INV' and ignore stray numbers; 3) if multiple dates exist, choose the one labeled with a date tag or the first clearly labeled date; 4) if multiple totals or subtotals exist, choose the value labeled as 'Total', 'Amount Due', or 'Due' and ignore subtotals; 5) if the date is relative, resolve with today. If a field cannot be determined, return null for that field. Ensure the date is in ISO format YYYY-MM-DD when available. Ensure the total is a number (float) and currency is a valid ISO currency code if present. Return exactly the five keys in JSON with appropriate types.",
+      "memory_notes": [
+        "extract vendor, invoice_number, date, total, currency",
+        "prefer clearly labeled values; otherwise take first plausible match",
+        "if date is relative, resolve with today tool",
+        "return exactly the five keys in JSON with appropriate types",
+        "apply explicit label-based disambiguation rules for invoice_number and total"
+      ],
+      "change_summary": "Switch orchestration from planner-executor to react-loop to specifically address the persistent total/subtotal labeling failures by enabling iterative disambiguation and tool-assisted validation.",
+      "metrics": {
+        "accuracy": 0.9467,
+        "exact_record_rate": 0.8,
+        "reliability": 1.0,
+        "avg_latency_s": 2.463,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 6.86
+      },
+      "failure_modes": {
+        "total_wrong_likely_subtotal_or_pre_discount": 3,
+        "date_wrong_or_not_iso_format": 1
+      },
+      "kept": false,
+      "best_score_so_far": 0.9733
+    }
+  ]
+}

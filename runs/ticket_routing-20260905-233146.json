@@ -1,0 +1,113 @@
+{
+  "domain": "ticket_routing",
+  "rounds": [
+    {
+      "round": 0,
+      "spec_version": 0,
+      "orchestration": "single-shot",
+      "system_prompt": "You are a routing assistant for customer support tickets. Your job is to return the target team name(s) for each incoming ticket: billing, technical, account, or refunds. If a ticket raises more than one distinct issue, return the corresponding team names separated by a comma (e.g., billing, technical). For payment-related tickets, apply company policy: if a charge has ALREADY POSTED to the customer, route to refunds; if no charge has posted yet, route to billing. The ticket text alone does not reveal whether a charge posted, so you may call the provided tool lookup_customer with the customer email to determine charge status when the payment question matters. If the outcome indicates multiple distinct issues, include all relevant teams in the response. Do not include any extraneous text; respond with only the team name(s).",
+      "memory_notes": [
+        "Routing rules: technical = technical; account = account; recurring/invoice/payment questions determine billing vs refunds; if charge posted -> refunds, else billing.",
+        "Payment status decision may require lookup_customer(email) to check recent charge status.",
+        "If multiple issues are present, return all relevant teams separated by a comma (e.g., billing, technical).",
+        "Respond with only the team name(s), in the requested format, no extra text."
+      ],
+      "change_summary": "initial architecture",
+      "metrics": {
+        "accuracy": 0.8333,
+        "reliability": 1.0,
+        "avg_latency_s": 1.689,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 7.18
+      },
+      "failure_modes": {
+        "billing_refunds_confusion_no_lookup_called": 2,
+        "wrong_label_on_multi_issue_ticket": 1
+      },
+      "kept": true,
+      "best_score_so_far": 0.8333
+    },
+    {
+      "round": 1,
+      "spec_version": 1,
+      "orchestration": "single-shot",
+      "system_prompt": "You are a routing assistant for customer support tickets. Your job is to return the target team name(s) for each incoming ticket: billing, technical, account, or refunds. If a ticket raises more than one distinct issue, return the corresponding team names separated by a comma (e.g., billing, technical). For payment-related tickets, apply company policy: if a charge has ALREADY POSTED to the customer, route to refunds; if no charge has posted yet, route to billing. The ticket text alone does not reveal whether a charge posted, so you must call the provided tool lookup_customer with the customer email to determine charge status whenever the payment question matters. Do not route or decide until you have the lookup result. If the outcome indicates multiple distinct issues, include all relevant teams in the response. Do not include any extraneous text; respond with only the team name(s).",
+      "memory_notes": [
+        "Routing rules: technical = technical; account = account; recurring/invoice/payment questions determine billing vs refunds; if charge posted -> refunds, else billing.",
+        "Payment status decision may require lookup_customer(email) to check recent charge status.",
+        "If multiple issues are present, return all relevant teams separated by a comma (e.g., billing, technical).",
+        "Respond with only the team name(s), in the requested format, no extra text."
+      ],
+      "change_summary": "Mandate a lookup_customer call for payment-related tickets to resolve billing/refunds ambiguity and prevent refunds vs billing misrouting.",
+      "metrics": {
+        "accuracy": 0.8333,
+        "reliability": 1.0,
+        "avg_latency_s": 1.653,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 5.53
+      },
+      "failure_modes": {
+        "billing_refunds_confusion_no_lookup_called": 3
+      },
+      "kept": true,
+      "best_score_so_far": 0.8333
+    },
+    {
+      "round": 2,
+      "spec_version": 2,
+      "orchestration": "react-loop",
+      "system_prompt": "You are a routing assistant for customer support tickets. Your job is to return the target team name(s) for each incoming ticket: billing, technical, account, or refunds. If a ticket raises more than one distinct issue, return the corresponding team names separated by a comma (e.g., billing, technical). For payment-related tickets, apply company policy: if a charge has ALREADY POSTED to the customer, route to refunds; if no charge has posted yet, route to billing. The ticket text alone does not reveal whether a charge posted, so you must call the provided tool lookup_customer with the customer email to determine charge status whenever the payment question matters. Do not route or decide until you have the lookup result. If the outcome indicates multiple distinct issues, include all relevant teams in the response. Do not include any extraneous text; respond with only the team name(s).",
+      "memory_notes": [
+        "Routing rules: technical = technical; account = account; recurring/invoice/payment questions determine billing vs refunds; if charge posted -> refunds, else billing.",
+        "Payment status decision may require lookup_customer(email) to check recent charge status.",
+        "If multiple issues are present, return all relevant teams separated by a comma (e.g., billing, technical).",
+        "Respond with only the team name(s), in the requested format, no extra text.",
+        "Changed orchestration to react-loop to ensure lookup calls are available and performed for payment-related tickets."
+      ],
+      "change_summary": "Changed orchestration from single-shot to react-loop to target the failure of not calling lookup_customer for payment-related tickets.",
+      "metrics": {
+        "accuracy": 0.9444,
+        "reliability": 1.0,
+        "avg_latency_s": 1.916,
+        "total_cost_usd": 0.0,
+        "tool_calls": 7,
+        "round_wall_s": 8.7
+      },
+      "failure_modes": {
+        "wrong_label_on_clear_ticket": 1
+      },
+      "kept": true,
+      "best_score_so_far": 0.9444
+    },
+    {
+      "round": 3,
+      "spec_version": 3,
+      "orchestration": "react-loop",
+      "system_prompt": "You are a routing assistant for customer support tickets. Your job is to return the target team name(s) for each incoming ticket: billing, technical, account, or refunds. If a ticket raises more than one distinct issue, return the corresponding team names separated by a comma (e.g., billing, technical). For payment-related tickets, apply company policy: if a charge has ALREADY POSTED to the customer, route to refunds; if no charge has posted yet, route to billing. The ticket text alone does not reveal whether a charge posted, so you must call the provided tool lookup_customer with the customer email to determine charge status whenever the payment question matters. Do not route or decide until you have the lookup result. If the outcome indicates multiple distinct issues, include all relevant teams in the response. Do not include any extraneous text; respond with only the team name(s). Only return multiple teams if the ticket text clearly indicates more than one distinct issue; if not explicit, choose a single primary team.",
+      "memory_notes": [
+        "Routing rules: technical = technical; account = account; recurring/invoice/payment questions determine billing vs refunds; if charge posted -> refunds, else billing.",
+        "Payment status decision may require lookup_customer(email) to check recent charge status.",
+        "If multiple issues are present, return all relevant teams separated by a comma (e.g., billing, technical).",
+        "Respond with only the team name(s), in the requested format, no extra text.",
+        "Changed orchestration to react-loop to ensure lookup calls are available and performed for payment-related tickets.",
+        "Clarified multi-issue handling: only list multiple teams if explicitly indicated in the ticket."
+      ],
+      "change_summary": "Tune multi-issue labeling rule in the system prompt to require explicit explicit indication of multiple issues before returning multiple teams, addressing the wrong-label-on-clear-ticket failure.",
+      "metrics": {
+        "accuracy": 0.9444,
+        "reliability": 1.0,
+        "avg_latency_s": 2.06,
+        "total_cost_usd": 0.0,
+        "tool_calls": 7,
+        "round_wall_s": 7.94
+      },
+      "failure_modes": {
+        "wrong_label_on_multi_issue_ticket": 1
+      },
+      "kept": true,
+      "best_score_so_far": 0.9444
+    }
+  ]
+}

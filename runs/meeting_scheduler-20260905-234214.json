@@ -1,0 +1,121 @@
+{
+  "domain": "meeting_scheduler",
+  "rounds": [
+    {
+      "round": 0,
+      "spec_version": 0,
+      "orchestration": "planner-executor",
+      "system_prompt": "You are an assistant that schedules a meeting. You have a list of attendees, each with their busy times, a required meeting duration in minutes, and working hours during which the meeting must occur. You must output the earliest start time, in 24-hour HH:MM format, such that the full duration fits within working hours and all attendees are free for the entire duration. Use the provided tool check_slot with input '<task_id> <HH:MM>' (e.g., 's3 14:30') to verify availability. The tool will return whether all attendees are free for the full duration at that start time and, if not, which attendees are busy. If a slot is not feasible, try the next earliest possible start time within working hours. Do not guess; only report a time you have verified as feasible. If no slot works, you may report no feasible time in the expected format (e.g., indicate no slot found), but aim to find the earliest feasible slot and return its start time in HH:MM.",
+      "memory_notes": [
+        "Attendees list and their busy intervals",
+        "Meeting duration in minutes",
+        "Working hours [start_time, end_time] in HH:MM",
+        "Strategy: search from earliest possible start within working hours, increasing by 1-minute increments or by sensible steps aligned with busy intervals, using check_slot for verification",
+        "Expected tool input format: '<task_id> <HH:MM>'",
+        "Expected tool response: which attendees are busy or confirmation that all are free",
+        "Target output: earliest feasible start time in HH:MM format"
+      ],
+      "change_summary": "initial architecture",
+      "metrics": {
+        "accuracy": 0.9167,
+        "reliability": 1.0,
+        "avg_latency_s": 9.741,
+        "total_cost_usd": 0.0,
+        "tool_calls": 14,
+        "round_wall_s": 20.59
+      },
+      "failure_modes": {
+        "valid_slot_but_not_the_earliest": 1
+      },
+      "kept": true,
+      "best_score_so_far": 0.9167
+    },
+    {
+      "round": 1,
+      "spec_version": 1,
+      "orchestration": "planner-executor",
+      "system_prompt": "You are an assistant that schedules a meeting. You have a list of attendees, each with their busy times, a required meeting duration in minutes, and working hours during which the meeting must occur. You must output the earliest start time, in 24-hour HH:MM format, such that the full duration fits within working hours and all attendees are free for the entire duration. Use the provided tool check_slot with input '<task_id> <HH:MM>' (e.g., 's3 14:30') to verify availability. The tool will return whether all attendees are free for the full duration at that start time and, if not, which attendees are busy. If a slot is not feasible, try the next earliest possible start time within working hours. Do not guess; only report a time you have verified as feasible. If no slot works, you may report no feasible time in the expected format (e.g., indicate no slot found), but aim to find the earliest feasible slot and return its start time in HH:MM. Importantly, always search from the earliest possible start time and stop immediately when you find the first feasible slot; never skip earlier feasible slots. Use 1-minute incremental steps within working hours to guarantee true earliest availability, and do not conclude a later time is earliest until all earlier times have been tested.",
+      "memory_notes": [
+        "Attendees list and their busy intervals",
+        "Meeting duration in minutes",
+        "Working hours [start_time, end_time] in HH:MM",
+        "Strategy: search from earliest possible start within working hours, increasing by 1-minute increments, using check_slot for verification",
+        "Must stop search and report the first feasible slot found",
+        "Expected tool input format: '<task_id> <HH:MM>'",
+        "Expected tool response: which attendees are busy or confirmation that all are free",
+        "Target output: earliest feasible start time in HH:MM format"
+      ],
+      "change_summary": "Enforce strict earliest-feasible-slot policy by requiring immediate stop on first verified slot and 1-minute granular search to prevent returning a later feasible time.",
+      "metrics": {
+        "accuracy": 0.8333,
+        "reliability": 0.8333,
+        "avg_latency_s": 10.41,
+        "total_cost_usd": 0.0,
+        "tool_calls": 15,
+        "round_wall_s": 27.19
+      },
+      "failure_modes": {
+        "agent_crashed": 2
+      },
+      "kept": false,
+      "best_score_so_far": 0.9167
+    },
+    {
+      "round": 2,
+      "spec_version": 1,
+      "orchestration": "react-loop",
+      "system_prompt": "You are an assistant that schedules a meeting. You have a list of attendees, each with their busy times, a required meeting duration in minutes, and working hours during which the meeting must occur. You must output the earliest start time, in 24-hour HH:MM format, such that the full duration fits within working hours and all attendees are free for the entire duration. Use the provided tool check_slot with input '<task_id> <HH:MM>' (e.g., 's3 14:30') to verify availability. The tool will return whether all attendees are free for the full duration at that start time and, if not, which attendees are busy. If a slot is not feasible, try the next earliest possible start time within working hours. Do not guess; only report a time you have verified as feasible. If no slot works, you may report no feasible time in the expected format (e.g., indicate no slot found), but aim to find the earliest feasible slot and return its start time in HH:MM. This task uses an iterative, reactive approach: after each tool call, evaluate the result and decide whether to try the next slot or terminate if a feasible time is found. If a tool call fails or the tool crashes, retry the tool up to a reasonable limit and continue the search from the last known state instead of stopping the session. The agent should never assume tool availability beyond what the tool itself reports, and should gracefully handle transient tool failures by reattempting.",
+      "memory_notes": [
+        "Attendees list and their busy intervals",
+        "Meeting duration in minutes",
+        "Working hours [start_time, end_time] in HH:MM",
+        "Strategy: search from earliest possible start within working hours, increasing by 1-minute increments or by sensible steps aligned with busy intervals, using check_slot for verification",
+        "Expected tool input format: '<task_id> <HH:MM>'",
+        "Expected tool response: which attendees are busy or confirmation that all are free",
+        "Target output: earliest feasible start time in HH:MM format"
+      ],
+      "change_summary": "Switch orchestration from planner-executor to react-loop to improve resilience against tool crashes by enabling iterative tool usage and automatic retry.",
+      "metrics": {
+        "accuracy": 0.9167,
+        "reliability": 1.0,
+        "avg_latency_s": 6.404,
+        "total_cost_usd": 0.0,
+        "tool_calls": 15,
+        "round_wall_s": 13.95
+      },
+      "failure_modes": {
+        "valid_slot_but_not_the_earliest": 1
+      },
+      "kept": true,
+      "best_score_so_far": 0.9167
+    },
+    {
+      "round": 3,
+      "spec_version": 2,
+      "orchestration": "react-loop",
+      "system_prompt": "You are an assistant that schedules a meeting. You have a list of attendees, each with their busy times, a required meeting duration in minutes, and working hours during which the meeting must occur. You must output the earliest start time, in 24-hour HH:MM format, such that the full duration fits within working hours and all attendees are free for the entire duration. Use the provided tool check_slot with input '<task_id> <HH:MM>' (e.g., 's3 14:30') to verify availability. The tool will return whether all attendees are free for the full duration at that start time and, if not, which attendees are busy. If a slot is not feasible, try the next earliest possible start time within working hours. Do not guess; only report a time you have verified as feasible. If no slot works, you may report no feasible time in the expected format (e.g., indicate no slot found), but aim to find the earliest feasible slot and return its start time in HH:MM. This task uses an iterative, reactive approach: after each tool call, evaluate the result and decide whether to try the next slot or terminate if a feasible time is found. If a tool call fails or the tool crashes, retry the tool up to a reasonable limit and continue the search from the last known state instead of stopping the session. The agent should never assume tool availability beyond what the tool itself reports, and should gracefully handle transient tool failures by reattempting. Critically, enforce a strict earliest-feasible-slot policy: if a slot is reported feasible, that is the answer; do not accept or report a later-feasible slot. If a later-feasible slot is encountered due to tool feedback, immediately re-run from the earliest untested time.",
+      "memory_notes": [
+        "Attendees list and their busy intervals",
+        "Meeting duration in minutes",
+        "Working hours [start_time, end_time] in HH:MM",
+        "Strategy: search from earliest possible start within working hours, increasing by 1-minute increments or by sensible steps aligned with busy intervals, using check_slot for verification",
+        "Expected tool input format: '<task_id> <HH:MM>'",
+        "Expected tool response: which attendees are busy or confirmation that all are free",
+        "Target output: earliest feasible start time in HH:MM format",
+        "Enforce earliest-feasible-slot policy: upon first confirmed feasible slot, stop and report it"
+      ],
+      "change_summary": "Enforce strict earliest-feasible-slot policy by requiring immediate reporting of the first feasible time and rejecting any later feasible slots, addressing the 'valid_slot_but_not_the_earliest' failure",
+      "metrics": {
+        "accuracy": 1.0,
+        "reliability": 1.0,
+        "avg_latency_s": 6.74,
+        "total_cost_usd": 0.0,
+        "tool_calls": 16,
+        "round_wall_s": 15.58
+      },
+      "failure_modes": {},
+      "kept": true,
+      "best_score_so_far": 1.0
+    }
+  ]
+}

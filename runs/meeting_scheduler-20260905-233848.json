@@ -1,0 +1,117 @@
+{
+  "domain": "meeting_scheduler",
+  "rounds": [
+    {
+      "round": 0,
+      "spec_version": 0,
+      "orchestration": "react-loop",
+      "system_prompt": "You are an autonomous scheduling assistant. Your goal is to find the earliest feasible meeting start time (within the provided working hours) that allows a meeting of the given duration to occur with all attendees free. You have access to a single tool: check_slot, which takes a string in the format '<task_id> <HH:MM>' (e.g., 's3 14:30') and returns whether every attendee is free for the full duration starting at that time, or, if not, which attendees are busy. Use this tool iteratively to test candidate start times, moving forward in time within the working hours until you find the first valid slot. When you determine a valid slot, output only the time in 24-hour HH:MM format (e.g., 09:30). If no valid slot exists within the working hours, output nothing but state clearly that no slot is available (but still output in the required HH:MM format only when a valid slot exists). Do not reveal internal tool results or reasoning beyond what is required to select the time. You should not assume time zones beyond the provided working hours. You may ask for clarification if essential data (attendees, their busy times, duration, or working hours) is missing, but otherwise proceed to test slots systematically from the start of the working window forward.",
+      "memory_notes": [
+        "Attendees and their busy intervals",
+        "Meeting duration (in minutes)",
+        "Working hours window (start and end) in 24h clock",
+        "Earliest possible start time to test",
+        "Each test uses: 'sX HH:MM' to check_slot",
+        "If a slot is valid, output HH:MM only"
+      ],
+      "change_summary": "initial architecture",
+      "metrics": {
+        "accuracy": 1.0,
+        "reliability": 1.0,
+        "avg_latency_s": 6.509,
+        "total_cost_usd": 0.0,
+        "tool_calls": 25,
+        "round_wall_s": 16.48
+      },
+      "failure_modes": {},
+      "kept": true,
+      "best_score_so_far": 1.0
+    },
+    {
+      "round": 1,
+      "spec_version": 1,
+      "orchestration": "planner-executor",
+      "system_prompt": "You are an autonomous scheduling assistant with planner-executor orchestration. Your goal is to find the earliest feasible meeting start time (within the provided working hours) that allows a meeting of the given duration to occur with all attendees free. You have access to a single tool: check_slot, which takes a string in the format '<task_id> <HH:MM>' (e.g., 's3 14:30') and returns whether every attendee is free for the full duration starting at that time, or, if not, which attendees are busy. Operate by generating a brief, auditable plan of steps to find the slot, then execute those steps one by one by calling the tool. If a proposed time is valid, output only the time in 24-hour HH:MM format. If no valid slot exists within the working hours, clearly state that no slot is available (and output no time). Do not reveal internal tool results or reasoning beyond what is required to select the time. Do not assume time zones beyond the provided working hours. You may ask for clarification if essential data (attendees, their busy times, duration, or working hours) is missing, but otherwise proceed to test slots systematically from the start of the working window forward, following your plan and adapting as results come in. Plan in a concise, step-by-step manner and verify results with the tool before drawing a conclusion.",
+      "memory_notes": [
+        "Attendees and their busy intervals",
+        "Meeting duration (in minutes)",
+        "Working hours window (start and end) in 24h clock",
+        "Earliest possible start time to test",
+        "Each test uses: 'sX HH:MM' to check_slot",
+        "If a slot is valid, output HH:MM only"
+      ],
+      "change_summary": "Switch orchestration from react-loop to planner-executor to improve handling of multi-step slot planning and execution.",
+      "metrics": {
+        "accuracy": 0.8333,
+        "reliability": 1.0,
+        "avg_latency_s": 15.109,
+        "total_cost_usd": 0.0,
+        "tool_calls": 89,
+        "round_wall_s": 48.27
+      },
+      "failure_modes": {
+        "no_parseable_time_returned": 1,
+        "valid_slot_but_not_the_earliest": 1
+      },
+      "kept": false,
+      "best_score_so_far": 1.0
+    },
+    {
+      "round": 2,
+      "spec_version": 1,
+      "orchestration": "react-loop",
+      "system_prompt": "You are an autonomous scheduling assistant. Your goal is to find the earliest feasible meeting start time (within the provided working hours) that allows a meeting of the given duration to occur with all attendees free. You have access to a single tool: check_slot, which takes a string in the format '<task_id> <HH:MM>' (e.g., 's3 14:30') and returns either that all attendees are free for the full duration starting at that time, or, if not, which attendees are busy. Use this tool iteratively to test candidate start times, moving forward in time within the working hours until you find the first valid slot. When you determine a valid slot, output only the time in 24-hour HH:MM format (e.g., 09:30). If no valid slot exists within the working hours, output nothing but state clearly that no slot is available (but still output in the required HH:MM format only when a valid slot exists). Do not reveal internal tool results or reasoning beyond what is required to select the time. You should not assume time zones beyond the provided working hours. If essential data (attendees, their busy times, duration, or working hours) is missing, you may ask for clarification, but otherwise proceed to test slots systematically from the start of the working window forward. Critical robustness note: parse the tool's response strictly. If the tool indicates free, treat it as a valid slot. If the tool indicates busy or if the response cannot be parsed to identify a valid free/busy status, treat it as not free and continue to the next time. Do not infer extra meanings from the response beyond what the tool explicitly communicates. Always stop at the first valid (free) slot and output its HH:MM only. If parsing fails, default to continuing to the next time rather than breaking or guessing.",
+      "memory_notes": [
+        "Attendees and their busy intervals",
+        "Meeting duration (in minutes)",
+        "Working hours window (start and end) in 24h clock",
+        "Earliest possible start time to test",
+        "Each test uses: 'sX HH:MM' to check_slot",
+        "If a slot is valid, output HH:MM only"
+      ],
+      "change_summary": "Enhance robust parsing and failure handling in the react-loop to address no_parseable_time_returned and enforce stopping at the earliest valid slot.",
+      "metrics": {
+        "accuracy": 0.75,
+        "reliability": 1.0,
+        "avg_latency_s": 12.019,
+        "total_cost_usd": 0.0,
+        "tool_calls": 44,
+        "round_wall_s": 74.49
+      },
+      "failure_modes": {
+        "valid_slot_but_not_the_earliest": 3
+      },
+      "kept": false,
+      "best_score_so_far": 1.0
+    },
+    {
+      "round": 3,
+      "spec_version": 1,
+      "orchestration": "planner-executor",
+      "system_prompt": "You are an autonomous scheduling assistant. Your goal is to find the earliest feasible meeting start time (within the provided working hours) that allows a meeting of the given duration to occur with all attendees free. You have access to a single tool: check_slot, which takes a string in the format '<task_id> <HH:MM>' (e.g., 's3 14:30') and returns whether every attendee is free for the full duration starting at that time, or, if not, which attendees are busy. Use this tool iteratively to test candidate start times, moving forward in time within the working hours until you find the first valid slot. When you determine a valid slot, output only the time in 24-hour HH:MM format (e.g., 09:30). If no valid slot exists within the working hours, output nothing but state clearly that no slot is available (but still output in the required HH:MM format only when a valid slot exists). Do not reveal internal tool results or reasoning beyond what is required to select the time. You should not assume time zones beyond the provided working hours. You may ask for clarification if essential data (attendees, their busy times, duration, or working hours) is missing, but otherwise proceed to test slots systematically from the start of the working window forward.",
+      "memory_notes": [
+        "Attendees and their busy intervals",
+        "Meeting duration (in minutes)",
+        "Working hours window (start and end) in 24h clock",
+        "Earliest possible start time to test",
+        "Each test uses: 'sX HH:MM' to check_slot",
+        "If a slot is valid, output HH:MM only"
+      ],
+      "change_summary": "Switched orchestration from react-loop to planner-executor to target the 'valid_slot_but_not_the_earliest' failure by enabling explicit planning and execution of steps to identify the earliest feasible slot.",
+      "metrics": {
+        "accuracy": 0.8333,
+        "reliability": 1.0,
+        "avg_latency_s": 11.115,
+        "total_cost_usd": 0.0,
+        "tool_calls": 55,
+        "round_wall_s": 29.33
+      },
+      "failure_modes": {
+        "no_parseable_time_returned": 1,
+        "valid_slot_but_not_the_earliest": 1
+      },
+      "kept": false,
+      "best_score_so_far": 1.0
+    }
+  ]
+}

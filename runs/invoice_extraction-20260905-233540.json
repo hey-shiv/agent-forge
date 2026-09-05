@@ -1,0 +1,128 @@
+{
+  "domain": "invoice_extraction",
+  "rounds": [
+    {
+      "round": 0,
+      "spec_version": 0,
+      "orchestration": "single-shot",
+      "system_prompt": "You are an information extraction agent. When given the text of an invoice or receipt, output a JSON object containing exactly the following five keys: vendor, invoice_number, date, total, currency. If any field is not present in the provided text, return null for that field. Do not invent values. Use the provided tools only for date resolution if the text contains relative dates (e.g., 'yesterday'). If a date is expressed in a non-standard format, extract it as-is and normalize only if a standard ISO date is clearly extractable. Do not fabricate missing data. Respond with a single JSON object and nothing else.",
+      "memory_notes": [
+        "last_extracted_vendor",
+        "last_extracted_invoice_number",
+        "last_extracted_date",
+        "last_extracted_total",
+        "last_extracted_currency"
+      ],
+      "change_summary": "initial architecture",
+      "metrics": {
+        "accuracy": 0.84,
+        "exact_record_rate": 0.2667,
+        "reliability": 1.0,
+        "avg_latency_s": 2.962,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 8.75
+      },
+      "failure_modes": {
+        "date_wrong_or_not_iso_format": 8,
+        "currency_wrong_or_not_iso_code": 3,
+        "total_wrong_likely_subtotal_or_pre_discount": 1
+      },
+      "kept": true,
+      "best_score_so_far": 0.84
+    },
+    {
+      "round": 1,
+      "spec_version": 1,
+      "orchestration": "react-loop",
+      "system_prompt": "You are an information extraction agent. When given the text of an invoice or receipt, output a JSON object containing exactly the following five keys: vendor, invoice_number, date, total, currency. If any field is not present in the provided text, return null for that field. Do not invent values. Use any available tools for date resolution or normalization if needed (e.g., converting a non-ISO date to ISO). If a date is expressed in a non-standard format and can reasonably be normalized to ISO, perform the normalization; if not, preserve the original value. Do not fabricate missing data. Respond with a single JSON object and nothing else.",
+      "memory_notes": [
+        "last_extracted_vendor",
+        "last_extracted_invoice_number",
+        "last_extracted_date",
+        "last_extracted_total",
+        "last_extracted_currency"
+      ],
+      "change_summary": "Switch orchestration to react-loop to enable tool-assisted date normalization and currency validation, targeting the date ISO-format and currency-code failure clusters.",
+      "metrics": {
+        "accuracy": 0.9333,
+        "exact_record_rate": 0.6667,
+        "reliability": 1.0,
+        "avg_latency_s": 2.589,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 8.5
+      },
+      "failure_modes": {
+        "total_wrong_likely_subtotal_or_pre_discount": 3,
+        "date_wrong_or_not_iso_format": 1,
+        "currency_wrong_or_not_iso_code": 1
+      },
+      "kept": true,
+      "best_score_so_far": 0.9333
+    },
+    {
+      "round": 2,
+      "spec_version": 2,
+      "orchestration": "planner-executor",
+      "system_prompt": "You are an information extraction agent with planning capabilities. When given the text of an invoice or receipt, output a JSON object containing exactly the following five keys: vendor, invoice_number, date, total, currency. If any field is not present in the provided text, return null for that field. Do not invent values. Use any available tools for date resolution or normalization if needed (e.g., converting a non-ISO date to ISO). If a date is expressed in a non-standard format and can reasonably be normalized to ISO, perform the normalization; if not, preserve the original value. Do not fabricate missing data. Before extracting values, generate a brief plan outlining the steps you will take (e.g., 1) identify vendor/invoice_number, 2) normalize date, 3) locate and validate total and currency, 4) finalize JSON). Then execute the plan step by step, updating any intermediate results as needed. Respond with a single JSON object and nothing else.",
+      "memory_notes": [
+        "last_extracted_vendor",
+        "last_extracted_invoice_number",
+        "last_extracted_date",
+        "last_extracted_total",
+        "last_extracted_currency"
+      ],
+      "change_summary": "Switch orchestration from react-loop to planner-executor to target the subtotal/pre-discount calculation failure by enabling explicit step-by-step planning and execution.",
+      "metrics": {
+        "accuracy": 0.7867,
+        "exact_record_rate": 0.6,
+        "reliability": 0.8667,
+        "avg_latency_s": 7.444,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 22.43
+      },
+      "failure_modes": {
+        "total_wrong_likely_subtotal_or_pre_discount": 2,
+        "agent_crashed": 2,
+        "currency_wrong_or_not_iso_code": 2,
+        "invoice_number_mismatch": 1,
+        "date_wrong_or_not_iso_format": 1
+      },
+      "kept": false,
+      "best_score_so_far": 0.9333
+    },
+    {
+      "round": 3,
+      "spec_version": 2,
+      "orchestration": "single-shot",
+      "system_prompt": "You are an information extraction agent. When given the text of an invoice or receipt, output a JSON object containing exactly the following five keys: vendor, invoice_number, date, total, currency. If any field is not present in the provided text, return null for that field. Do not invent values. Use any available tools for date resolution or normalization if needed (e.g., converting a non-ISO date to ISO). If a date is expressed in a non-standard format and can reasonably be normalized to ISO, perform the normalization; if not, preserve the original value. Do not fabricate missing data. Additionally, implement inline validation focused on the subtotal/pre-discount flow: if the text includes explicit subtotals, pre-discount amounts, or discounts, verify that the reported total is numerically plausible with respect to those values; if inconsistencies are detected, prefer returning null for total rather than guessing. Respond with a single JSON object and nothing else.",
+      "memory_notes": [
+        "last_extracted_vendor",
+        "last_extracted_invoice_number",
+        "last_extracted_date",
+        "last_extracted_total",
+        "last_extracted_currency"
+      ],
+      "change_summary": "Switch orchestration to single-shot to target the subtotal/pre-discount total mismatch by enforcing inline total validation instead of multi-step planning.",
+      "metrics": {
+        "accuracy": 0.9067,
+        "exact_record_rate": 0.6,
+        "reliability": 1.0,
+        "avg_latency_s": 3.398,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 10.03
+      },
+      "failure_modes": {
+        "date_wrong_or_not_iso_format": 2,
+        "total_wrong_likely_subtotal_or_pre_discount": 3,
+        "currency_wrong_or_not_iso_code": 1,
+        "missed_total": 1
+      },
+      "kept": false,
+      "best_score_so_far": 0.9333
+    }
+  ]
+}

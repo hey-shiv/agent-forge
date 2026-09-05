@@ -1,0 +1,126 @@
+{
+  "domain": "invoice_extraction",
+  "rounds": [
+    {
+      "round": 0,
+      "spec_version": 0,
+      "orchestration": "single-shot",
+      "system_prompt": "You are an information extraction agent. When provided with the text content of an invoice or receipt, output a JSON object containing exactly five keys: vendor, invoice_number, date, total, and currency. Do not include any extraneous text. If any field is not detectable, set it to null. If the date in the document is relative (e.g., 'yesterday', 'last Friday'), use the today tool to resolve it to an ISO date, and then use that value. Do not invent dates beyond what is supported by the document and the today tool. Return only the JSON string.\n\nInput: a block of text representing an invoice or receipt.",
+      "memory_notes": [
+        "Remember to return exactly five keys: vendor, invoice_number, date, total, currency.",
+        "If a field cannot be determined, set it to null.",
+        "Resolve any relative date phrases using the today tool.",
+        "Output must be a valid JSON string with the five keys only.",
+        "Do not include any commentary or extraneous text with the JSON."
+      ],
+      "change_summary": "initial architecture",
+      "metrics": {
+        "accuracy": 0.9467,
+        "exact_record_rate": 0.7333,
+        "reliability": 1.0,
+        "avg_latency_s": 2.518,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 7.28
+      },
+      "failure_modes": {
+        "date_wrong_or_not_iso_format": 1,
+        "total_wrong_likely_subtotal_or_pre_discount": 1,
+        "currency_wrong_or_not_iso_code": 2
+      },
+      "kept": true,
+      "best_score_so_far": 0.9467
+    },
+    {
+      "round": 1,
+      "spec_version": 1,
+      "orchestration": "single-shot",
+      "system_prompt": "You are an information extraction agent. When provided with the text content of an invoice or receipt, output a JSON object containing exactly five keys: vendor, invoice_number, date, total, and currency. Do not include any extraneous text. If any field is not detectable, set it to null. Date must be in ISO 8601 format (YYYY-MM-DD); if the date cannot be determined or properly formatted, set date to null. If a date is relative (e.g., 'yesterday', 'last Friday'), use the today tool to resolve it to an ISO date, and then ensure it conforms to YYYY-MM-DD. Currency must be a valid ISO 4217 currency code (e.g., USD, EUR); if the currency cannot be determined, set currency to null. Do not invent dates beyond what is supported by the document and the today tool. Return only the JSON string.",
+      "memory_notes": [
+        "Remember to return exactly five keys: vendor, invoice_number, date, total, currency.",
+        "If a field cannot be determined, set it to null.",
+        "Resolve any relative date phrases using the today tool, then format as YYYY-MM-DD or null.",
+        "Output must be a valid JSON string with the five keys only.",
+        "Do not include any commentary or extraneous text with the JSON."
+      ],
+      "change_summary": "Enforce strict ISO date formatting and ISO currency code validation to address date and currency failures.",
+      "metrics": {
+        "accuracy": 0.9467,
+        "exact_record_rate": 0.7333,
+        "reliability": 1.0,
+        "avg_latency_s": 2.266,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 6.86
+      },
+      "failure_modes": {
+        "missed_date": 1,
+        "total_wrong_likely_subtotal_or_pre_discount": 2,
+        "invoice_number_mismatch": 1
+      },
+      "kept": true,
+      "best_score_so_far": 0.9467
+    },
+    {
+      "round": 2,
+      "spec_version": 2,
+      "orchestration": "planner-executor",
+      "system_prompt": "You are an information extraction agent working with a planner-executor orchestration. When provided with the text content of an invoice or receipt, the system will first generate a plan describing how to extract the fields and validate bookkeeping consistency, then execute the plan to produce a JSON object containing exactly five keys: vendor, invoice_number, date, total, and currency. Do not include any extraneous text. If any field is not detectable, set it to null. Date must be in ISO 8601 format (YYYY-MM-DD); if the date cannot be determined or properly formatted, set date to null. If a date is relative (e.g., 'yesterday', 'last Friday'), use the today tool to resolve it to an ISO date, and then ensure it conforms to YYYY-MM-DD. Currency must be a valid ISO 4217 currency code (e.g., USD, EUR); if the currency cannot be determined, set currency to null. The planner should propose a plan that includes extracting line item amounts, discounts, and taxes when possible, computing a validated subtotal and total, and then the executor should apply the plan to extract and compute the final values. If the computed total or subtotal cannot be confidently determined, set total to null. Return only the JSON string.",
+      "memory_notes": [
+        "Remember to return exactly five keys: vendor, invoice_number, date, total, currency.",
+        "If a field cannot be determined, set it to null.",
+        "Resolve any relative date phrases using the today tool, then format as YYYY-MM-DD or null.",
+        "Output must be a valid JSON string with the five keys only.",
+        "Do not include any commentary or extraneous text with the JSON."
+      ],
+      "change_summary": "Switch orchestration from single-shot to planner-executor to target the subtotal/total consistency failure by adding a planning step that validates total against line items and discounts.",
+      "metrics": {
+        "accuracy": 0.9333,
+        "exact_record_rate": 0.6667,
+        "reliability": 1.0,
+        "avg_latency_s": 5.735,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 17.67
+      },
+      "failure_modes": {
+        "total_wrong_likely_subtotal_or_pre_discount": 2,
+        "missed_date": 1,
+        "date_wrong_or_not_iso_format": 1,
+        "invoice_number_mismatch": 1
+      },
+      "kept": false,
+      "best_score_so_far": 0.9467
+    },
+    {
+      "round": 3,
+      "spec_version": 2,
+      "orchestration": "react-loop",
+      "system_prompt": "You are an information extraction agent. When provided with the text content of an invoice or receipt, output a JSON object containing exactly five keys: vendor, invoice_number, date, total, and currency. Do not include any extraneous text. If any field is not detectable, set it to null. Date must be in ISO 8601 format (YYYY-MM-DD); if the date cannot be determined or properly formatted, set date to null. If a date is relative (e.g., 'yesterday', 'last Friday'), use the today tool to resolve it to an ISO date, and then ensure it conforms to YYYY-MM-DD. Currency must be a valid ISO 4217 currency code (e.g., USD, EUR); if the currency cannot be determined, set currency to null. Do not invent dates beyond what is supported by the document and the today tool. Return only the JSON string.",
+      "memory_notes": [
+        "Remember to return exactly five keys: vendor, invoice_number, date, total, currency.",
+        "If a field cannot be determined, set it to null.",
+        "Resolve any relative date phrases using the today tool, then format as YYYY-MM-DD or null.",
+        "Output must be a valid JSON string with the five keys only.",
+        "Do not include any commentary or extraneous text with the JSON."
+      ],
+      "change_summary": "Switch orchestration from single-shot to react-loop to target the subtotal/total mismatch failure by enabling iterative validation and correction across extracted fields.",
+      "metrics": {
+        "accuracy": 0.8933,
+        "exact_record_rate": 0.7333,
+        "reliability": 1.0,
+        "avg_latency_s": 2.539,
+        "total_cost_usd": 0.0,
+        "tool_calls": 0,
+        "round_wall_s": 7.07
+      },
+      "failure_modes": {
+        "total_wrong_likely_subtotal_or_pre_discount": 2,
+        "output_was_not_valid_json": 1,
+        "date_wrong_or_not_iso_format": 1
+      },
+      "kept": false,
+      "best_score_so_far": 0.9467
+    }
+  ]
+}

@@ -1,0 +1,1227 @@
+<title>From Programs to Agents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --paper:      #F7F8F9;
+    --surface:    #FFFFFF;
+    --ink:        #14171B;
+    --ink-mid:    #414751;
+    --ink-soft:   #6E757F;
+    --rule:       #DCE0E5;
+    --rule-soft:  #E9ECEF;
+
+    --oxblood:    #7A2B3D;
+    --oxblood-lt: #F5EBED;
+    --slate:      #2C4A63;
+    --slate-lt:   #E9EEF3;
+    --moss:       #2E6B4F;
+    --moss-lt:    #E8F1EC;
+
+    --font-read: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --font-ui:   "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+
+    --measure: 66ch;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-read);
+    font-size: 18px;
+    line-height: 1.72;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 22px 130px;
+  }
+
+  @media (min-width: 1080px) {
+    .shell {
+      grid-template-columns: 214px minmax(0, 1fr);
+      gap: 58px;
+      padding: 0 32px 150px;
+    }
+  }
+
+  main { min-width: 0; max-width: var(--measure); }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    grid-column: 1 / -1;
+    padding: 88px 0 40px;
+    border-bottom: 3px double var(--ink);
+    margin-bottom: 54px;
+  }
+
+  .book-label {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    color: var(--oxblood);
+    margin: 0 0 20px;
+    font-weight: 500;
+  }
+
+  .masthead h1 {
+    font-family: var(--font-read);
+    font-weight: 700;
+    font-size: clamp(40px, 6.5vw, 66px);
+    line-height: 1.02;
+    letter-spacing: -0.021em;
+    margin: 0 0 20px;
+    max-width: 13ch;
+    text-wrap: balance;
+  }
+
+  .masthead .sub {
+    font-size: clamp(17px, 2.2vw, 20px);
+    line-height: 1.56;
+    color: var(--ink-mid);
+    max-width: 52ch;
+    margin: 0 0 26px;
+    font-style: italic;
+  }
+
+  .masthead .built {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ---------- rail ---------- */
+
+  .rail { display: none; }
+
+  @media (min-width: 1080px) {
+    .rail {
+      display: block;
+      align-self: start;
+      position: sticky;
+      top: 38px;
+      max-height: calc(100vh - 76px);
+      overflow-y: auto;
+      padding-right: 6px;
+      font-family: var(--font-ui);
+    }
+  }
+
+  .rail-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 13px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .rail ol { list-style: none; margin: 0 0 22px; padding: 0; }
+  .rail li { margin-bottom: 1px; }
+
+  .rail a {
+    display: block;
+    padding: 5px 6px 5px 11px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .rail a:hover { color: var(--ink); }
+  .rail a.active { color: var(--oxblood); border-left-color: var(--oxblood); font-weight: 600; }
+
+  .rail-ch {
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 600;
+    margin: 0 0 8px;
+    padding-left: 11px;
+  }
+
+  /* ---------- chapter apparatus ---------- */
+
+  .chapter { margin-bottom: 96px; scroll-margin-top: 30px; }
+
+  .chapter-open {
+    border-top: 3px double var(--ink);
+    padding-top: 22px;
+    margin-bottom: 30px;
+  }
+
+  .chapter-num {
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--oxblood);
+    font-weight: 500;
+    margin: 0 0 12px;
+  }
+
+  .chapter-open h2 {
+    font-family: var(--font-read);
+    font-weight: 700;
+    font-size: clamp(30px, 4.4vw, 42px);
+    line-height: 1.1;
+    letter-spacing: -0.017em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-family: var(--font-read);
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 1.26;
+    margin: 46px 0 15px;
+    letter-spacing: -0.008em;
+    text-wrap: balance;
+  }
+
+  h4 {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.005em;
+    margin: 32px 0 11px;
+    color: var(--ink-mid);
+  }
+
+  p { margin: 0 0 19px; }
+  a { color: var(--oxblood); text-underline-offset: 2px; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+
+  ul, ol { margin: 0 0 21px; padding-left: 24px; }
+  li { margin-bottom: 10px; }
+  li::marker { color: var(--ink-soft); }
+
+  .lead {
+    font-size: 20px;
+    line-height: 1.6;
+    color: var(--ink-mid);
+    margin-bottom: 26px;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    background: var(--slate-lt);
+    color: var(--slate);
+    padding: 1.5px 5px;
+    border-radius: 3px;
+  }
+
+  pre {
+    font-family: var(--font-mono);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--slate);
+    border-radius: 4px;
+    padding: 19px 21px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.65;
+    margin: 0 0 22px;
+    color: var(--ink-mid);
+  }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+  pre.diagram {
+    border-left-color: var(--rule);
+    background: #FCFDFD;
+    color: var(--ink-mid);
+    line-height: 1.5;
+    font-size: 12.5px;
+  }
+
+  .caption {
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: -12px 0 24px;
+    line-height: 1.5;
+  }
+
+  /* ---------- apparatus blocks ---------- */
+
+  .apparatus {
+    font-family: var(--font-ui);
+    font-size: 15px;
+    line-height: 1.62;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--surface);
+    padding: 20px 24px;
+    margin: 0 0 30px;
+  }
+  .apparatus p { margin: 0 0 12px; }
+  .apparatus p:last-child { margin-bottom: 0; }
+  .apparatus ul { margin: 0; padding-left: 20px; }
+  .apparatus li { margin-bottom: 7px; }
+
+  .apparatus-label {
+    display: block;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--oxblood);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .apparatus.learn  { background: var(--oxblood-lt); border-color: #E8D4D9; }
+  .apparatus.quiz   { background: var(--slate-lt);   border-color: #D5DFE8; }
+  .apparatus.quiz .apparatus-label { color: var(--slate); }
+  .apparatus.ready  { background: var(--moss-lt);    border-color: #D2E3D9; }
+  .apparatus.ready .apparatus-label { color: var(--moss); }
+
+  .note {
+    border-radius: 4px;
+    padding: 18px 22px;
+    margin: 0 0 24px;
+    font-size: 16.5px;
+    line-height: 1.6;
+    background: var(--slate-lt);
+  }
+  .note p:last-child { margin-bottom: 0; }
+  .note-label {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--slate);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .note.warn { background: var(--oxblood-lt); }
+  .note.warn .note-label { color: var(--oxblood); }
+
+  .keyterm {
+    border-left: 3px solid var(--oxblood);
+    padding: 4px 0 4px 20px;
+    margin: 0 0 24px;
+  }
+  .keyterm .term {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--oxblood);
+    display: block;
+    margin-bottom: 5px;
+  }
+  .keyterm p { margin: 0 0 10px; font-size: 17px; }
+  .keyterm p:last-child { margin-bottom: 0; }
+
+  .mental-model {
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    padding: 24px 26px;
+    margin: 0 0 28px;
+    background: var(--surface);
+    text-align: center;
+  }
+  .mental-model .mm-label {
+    font-family: var(--font-ui);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 12px;
+  }
+  .mental-model p {
+    font-size: 21px;
+    line-height: 1.42;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.008em;
+  }
+
+  /* ---------- tables ---------- */
+
+  .table-wrap { overflow-x: auto; margin: 0 0 26px; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: var(--font-ui);
+    font-size: 14.5px;
+    min-width: 440px;
+  }
+  th {
+    text-align: left;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+    padding: 0 16px 10px 0;
+    border-bottom: 1.5px solid var(--ink);
+  }
+  td {
+    padding: 11px 16px 11px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+    color: var(--ink-mid);
+    line-height: 1.55;
+  }
+  td:first-child { color: var(--ink); font-weight: 500; }
+
+  .colophon {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--rule);
+    margin-top: 24px;
+    padding-top: 26px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+
+  a:focus-visible, .rail a:focus-visible {
+    outline: 2px solid var(--oxblood);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+
+<div class="shell">
+
+  <header class="masthead">
+    <p class="book-label">A textbook in progress · Chapters 0–1 of 101</p>
+    <h1>From Programs to Agents</h1>
+    <p class="sub">
+      A staircase from "what is a program?" to building a system that designs, tests,
+      and improves AI agents on its own.
+    </p>
+    <p class="built">Written for Shivashant · Track 1, Syndicate by Maximor</p>
+  </header>
+
+  <nav class="rail" aria-label="Contents">
+    <p class="rail-label">Contents</p>
+
+    <p class="rail-ch">Chapter 0</p>
+    <ol>
+      <li><a href="#c0-what">What this book is</a></li>
+      <li><a href="#c0-destination">Where we are going</a></li>
+      <li><a href="#c0-shape">How chapters are shaped</a></li>
+      <li><a href="#c0-companions">The four companions</a></li>
+      <li><a href="#c0-tracks">Three reading tracks</a></li>
+      <li><a href="#c0-need">What you need</a></li>
+      <li><a href="#c0-howread">How to actually read this</a></li>
+    </ol>
+
+    <p class="rail-ch">Chapter 1</p>
+    <ol>
+      <li><a href="#c1-learn">What you will learn</a></li>
+      <li><a href="#c1-first">First principles</a></li>
+      <li><a href="#c1-visual">The visual model</a></li>
+      <li><a href="#c1-technical">Determinism, named</a></li>
+      <li><a href="#c1-misconceptions">Misconceptions</a></li>
+      <li><a href="#c1-implementation">Tiny implementation</a></li>
+      <li><a href="#c1-walkthrough">Walkthrough</a></li>
+      <li><a href="#c1-failure">Where it breaks</a></li>
+      <li><a href="#c1-improve">The improvement that fails</a></li>
+      <li><a href="#c1-hackathon">Connection to hackathon</a></li>
+      <li><a href="#c1-quiz">Quiz and exercise</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <!-- ==================== CHAPTER 0 ==================== -->
+    <article class="chapter" id="ch0">
+
+      <div class="chapter-open">
+        <p class="chapter-num">Chapter 0</p>
+        <h2>How to use this textbook</h2>
+      </div>
+
+      <p class="lead">
+        Before we start climbing, a short chapter about the staircase itself — what it's
+        made of, where it ends, and how to walk up it without falling off.
+      </p>
+
+      <h3 id="c0-what">What this book is</h3>
+
+      <p>
+        This is a book about building AI agents, written for someone who has never built
+        one. It starts before agents — before language models, even — and works upward
+        one step at a time until you can design, build, debug, and improve agent systems
+        yourself.
+      </p>
+
+      <p>
+        It makes you one promise, and the whole structure depends on it:
+        <strong>you will never meet a word before you have met the problem that word
+        solves.</strong> Terminology arrives as a solution, never as an assignment. When
+        you read "orchestration" in Chapter 31, it will be because you have already spent
+        two chapters wishing you had a name for something, and orchestration turns out to
+        be that name.
+      </p>
+
+      <p>
+        This means the book will occasionally seem to move slowly. Chapter 1 is about
+        what a computer program is — something you already know. Read it anyway. It is not
+        there to teach you what a program is; it is there to name a property of programs
+        that you have always taken for granted, so that when that property breaks in
+        Chapter 8, you feel the break instead of reading past it.
+      </p>
+
+      <h3 id="c0-destination">Where we are going</h3>
+
+      <p>
+        The destination is a hackathon problem. Here it is in its official words, which
+        are currently intimidating and will not be by Chapter 73:
+      </p>
+
+      <div class="note">
+        <span class="note-label">The track statement</span>
+        <p>
+          "Build a system that can design, test, and improve specialized agents for tasks
+          it has never seen before. Given only a goal, available tools, and a way to
+          evaluate success, your system should generate an agent architecture, run the
+          agent, analyze where it fails, and iteratively improve its prompts, tools,
+          memory, or orchestration strategy."
+        </p>
+      </div>
+
+      <p>
+        Now here is the same thing with every intimidating word removed:
+      </p>
+
+      <div class="note warn">
+        <span class="note-label">The same thing, in plain English</span>
+        <p>
+          You will build a program that you hand three things to: <em>a description of a
+          job</em>, <em>a box of tools</em>, and <em>a way of checking whether the job got
+          done properly</em>. Your program then writes its own helper to do that job, tries
+          it out, notices what went wrong, fixes the specific thing that went wrong, and
+          tries again — getting better each round.
+        </p>
+      </div>
+
+      <p>
+        That is the entire competition. Every frightening term in the official statement is
+        just a name for one part of that sentence. "Agent architecture" is what shape the
+        helper takes. "Orchestration strategy" is how the helper's steps are arranged.
+        "Evaluate success" is the checking. By the time you reach Part X, you will read the
+        official version and find it says nothing you don't already know.
+      </p>
+
+      <p>
+        Here is the shape of the whole book, as a picture you should not fully understand
+        yet:
+      </p>
+
+<pre class="diagram"><code>   PART I-II        PART III-VI         PART VII-IX        PART X-XV
+   ─────────        ───────────         ───────────        ─────────
+
+   what an          building            measuring          building the
+   LLM is           agents that         agents and         thing that
+                    work                fixing them        builds agents
+
+   model      →     tools         →     evaluation   →     generator
+   prompt           the loop            trajectory         diagnosis
+   context          architectures       failure modes      improvement
+   output           memory              reliability        generalization
+
+                                                           ↓
+                                              your hackathon submission</code></pre>
+
+      <p class="caption">
+        The four movements of the book. Each column depends entirely on the one to its
+        left — which is why the staircase has no shortcuts.
+      </p>
+
+      <h3 id="c0-shape">How each chapter is shaped</h3>
+
+      <p>
+        Every chapter follows the same rhythm, because a predictable shape means you can
+        spend your attention on the content instead of on navigation.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Section</th><th>What it does for you</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>What you will learn</td><td>The three or four specific things, stated plainly</td></tr>
+            <tr><td>Why this matters</td><td>Where this sits in the staircase, and what it unlocks</td></tr>
+            <tr><td>First principles</td><td>The idea built up from nothing, with an analogy</td></tr>
+            <tr><td>Visual model</td><td>A diagram, because information flow is spatial</td></tr>
+            <tr><td>Technical explanation</td><td>The formal version — <em>after</em> you already understand it</td></tr>
+            <tr><td>Misconceptions</td><td>The wrong models people build, named so you avoid them</td></tr>
+            <tr><td>Tiny implementation</td><td>Working code, small enough to hold in your head</td></tr>
+            <tr><td>Walkthrough</td><td>Tracing that code by hand, line by line</td></tr>
+            <tr><td>Failure example</td><td>Where it breaks — always, because it always does</td></tr>
+            <tr><td>Improvement</td><td>The fix, and what the fix costs you</td></tr>
+            <tr><td>Connections</td><td>Backward to earlier chapters, forward to the hackathon</td></tr>
+            <tr><td>Mental model</td><td>One sentence to carry with you</td></tr>
+            <tr><td>Quiz &amp; exercise</td><td>Active recall, then something to actually build</td></tr>
+            <tr><td>Ready to move on when…</td><td>An honest checklist, so you know if you can proceed</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="c0-companions">The four companions</h3>
+
+      <p>
+        Four examples recur throughout the entire book. They are deliberately few, so that
+        you are never learning a new domain and a new concept at the same time. Each one
+        starts trivially and grows more sophisticated as your understanding does.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Example</th><th>First appears</th><th>What it eventually becomes</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Customer support routing</td>
+              <td>Chapter 1</td>
+              <td>A multi-label agent that handles emails raising several issues at once</td>
+            </tr>
+            <tr>
+              <td>The calculator agent</td>
+              <td>Chapter 22</td>
+              <td>Your first complete agent loop — small enough to fully understand</td>
+            </tr>
+            <tr>
+              <td>Invoice extraction</td>
+              <td>Chapter 25</td>
+              <td>A document agent that must handle messy, real-world inputs</td>
+            </tr>
+            <tr>
+              <td>Cover-song retrieval</td>
+              <td>Chapter 54</td>
+              <td>Your own research domain, treated as the hardest test of generality</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Notice that support routing starts in the very next chapter, before you know
+        anything about agents at all. That is intentional. You will watch one problem be
+        solved four different ways as the book progresses, and the differences between
+        those four solutions <em>are</em> the curriculum.
+      </p>
+
+      <h3 id="c0-tracks">Three reading tracks, and your deadline</h3>
+
+      <p>
+        The full book is 101 chapters. Your hackathon starts on 5 September and runs for
+        thirty hours. Those two facts do not fit together, so every chapter carries a tag.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Track</th><th>Count</th><th>When to read</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Sprint</td><td>22 chapters</td><td>Before Saturday. The minimum to build something real.</td></tr>
+            <tr><td>Core</td><td>~55 chapters</td><td>The proper foundation. During and after.</td></tr>
+            <tr><td>Depth</td><td>~24 chapters</td><td>After the hackathon, when you want mastery.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        My recommendation, and you should decide consciously rather than drift into it:
+        read the <strong>Sprint track in its listed order first</strong>. It is roughly six
+        to seven hours of reading and it pulls chapters from across the whole book, so you
+        arrive Saturday with a complete if compressed picture. Then fill in the Core
+        chapters underneath afterwards. Reading strictly 1, 2, 3… is the order that
+        respects the subject; reading Sprint-first is the order that respects your
+        calendar. Right now the calendar wins.
+      </p>
+
+      <h3 id="c0-need">What you need</h3>
+
+      <ul>
+        <li><strong>Python 3.10 or newer</strong>, and a text editor. Nothing else to install yet.</li>
+        <li><strong>An Anthropic API key</strong>, from <a href="https://console.anthropic.com">console.anthropic.com</a>. You do not need it until Chapter 19, but get it now — discovering you don't have one at hour two of a thirty-hour hackathon is an expensive way to lose a morning.</li>
+        <li><strong>Roughly 20–30 minutes per chapter</strong>, more when there's code to type.</li>
+        <li><strong>Willingness to type the code rather than read it.</strong> This matters more than it sounds. See below.</li>
+      </ul>
+
+      <h3 id="c0-howread">How to actually read this</h3>
+
+      <p>
+        <strong>Type the code.</strong> Reading code produces a feeling of understanding
+        that evaporates the moment you face a blank file. Typing it — even copying it
+        character by character — produces something that survives. Every implementation in
+        this book is deliberately small enough that typing it costs you two minutes.
+      </p>
+
+      <p>
+        <strong>Do the failure examples.</strong> Each chapter shows you where the thing
+        you just built breaks. Run the broken case yourself and watch it break. Agent
+        engineering is largely the study of failure, and the earlier you develop an
+        appetite for it, the better you will be at Part VIII, which is where this book
+        gets serious.
+      </p>
+
+      <p>
+        <strong>If you are lost, go back exactly one chapter.</strong> The staircase has no
+        gaps by construction. So confusion in Chapter <em>n</em> almost always means
+        something in Chapter <em>n−1</em> didn't land, not that Chapter <em>n</em> is too
+        hard. This is a diagnostic habit, and it is the same habit Part VIII will teach you
+        to apply to broken agents.
+      </p>
+
+      <p>
+        <strong>Answers come at the end of the part, not the chapter.</strong> The gap is
+        deliberate. Retrieving a half-remembered answer is what builds durable
+        understanding; checking immediately builds only recognition.
+      </p>
+
+      <div class="note">
+        <span class="note-label">A note on honesty</span>
+        <p>
+          This field moves quickly. Throughout, I will distinguish <em>stable concepts</em>
+          — the agent loop, evaluation, failure analysis, which have been true for years and
+          will stay true — from <em>implementation details</em> like specific model names,
+          API shapes, and library interfaces, which change every few months. When something
+          is genuinely unsettled or contested, I will say so rather than presenting a
+          confident guess as established fact.
+        </p>
+      </div>
+
+      <div class="apparatus ready">
+        <span class="apparatus-label">You are ready to move on when…</span>
+        <ul>
+          <li>You can state the hackathon problem in one plain-English sentence, without using the words "architecture," "orchestration," or "evaluate."</li>
+          <li>You have decided which reading track you're taking.</li>
+          <li>You have Python installed and an API key on the way.</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- ==================== CHAPTER 1 ==================== -->
+    <article class="chapter" id="ch1">
+
+      <div class="chapter-open">
+        <p class="chapter-num">Chapter 1 · Part I · Sprint track</p>
+        <h2>What is a program?</h2>
+      </div>
+
+      <p class="lead">
+        You already know what a program is. This chapter is not really about that. It is
+        about one specific property of programs — a property so reliable that you have
+        never had to think about it — because in seven chapters we are going to break it,
+        and everything difficult about agents flows from that break.
+      </p>
+
+      <div class="apparatus learn" id="c1-learn">
+        <span class="apparatus-label">What you will learn</span>
+        <ul>
+          <li>What a program is, reduced to its simplest possible description</li>
+          <li>The property called <em>determinism</em>, and why it is a gift you've been taking for free</li>
+          <li>Why deterministic programs are wonderful to debug and terrible at understanding language</li>
+          <li>Your first encounter with the customer-support-routing problem, which will follow us through the entire book</li>
+        </ul>
+      </div>
+
+      <h3>Why this matters</h3>
+
+      <p>
+        Here is the plot of this entire textbook in one sentence: <strong>we are going to
+        take an ordinary program and replace one part of it with something that does not
+        behave like a program at all, and then spend eighty chapters learning to engineer
+        around the consequences.</strong>
+      </p>
+
+      <p>
+        You cannot feel that plot unless you first have a clear sense of how well-behaved
+        ordinary programs are. So that's this chapter. It's the "before" photograph.
+      </p>
+
+      <h3 id="c1-first">First principles: what a program actually is</h3>
+
+      <p>
+        Strip away everything and a program is this: <em>a fixed list of instructions that
+        turns an input into an output.</em>
+      </p>
+
+      <p>
+        Not "intelligent." Not "thinking." A list of steps, followed exactly, in order,
+        by a machine that has no opinion about them.
+      </p>
+
+      <h4>The analogy</h4>
+
+      <p>
+        A program is a recipe. Not a chef — a <em>recipe</em>. The distinction matters.
+      </p>
+
+      <p>
+        A chef tastes the sauce and adds salt if it needs it. A recipe says "add one
+        teaspoon of salt," and it says that whether the sauce needs it or not, whether the
+        tomatoes were sweet or sour, whether it's Tuesday or Thursday. Give a recipe the
+        same ingredients and follow the same steps, and you get the same cake. Every single
+        time. Forever.
+      </p>
+
+      <p>
+        That reliability is the whole point of a recipe. It is also the whole point of a
+        program. And — this is the part to hold onto — it is exactly what we lose later.
+      </p>
+
+      <h4>The smallest concrete example</h4>
+
+      <p>
+        Here is a complete program:
+      </p>
+
+<pre><code>def add(a, b):
+    return a + b</code></pre>
+
+      <p>
+        Call <code>add(3, 4)</code> and you get <code>7</code>. Call it again: <code>7</code>.
+        Call it a billion times across a thousand machines over ten years: <code>7</code>,
+        every time. You do not need to test this. You do not need to run it twice to be
+        sure. You <em>know</em>.
+      </p>
+
+      <p>
+        Pause on how strange that certainty is. There is almost nothing else in life you
+        can say that about.
+      </p>
+
+      <h3 id="c1-visual">The visual model</h3>
+
+<pre class="diagram"><code>        INPUT              PROGRAM              OUTPUT
+        ─────              ───────              ──────
+
+          3      ──────►   ┌───────────┐   ──────►    7
+                           │  a + b    │
+          4      ──────►   └───────────┘</code></pre>
+
+      <p>
+        And the property we care about, drawn out:
+      </p>
+
+<pre class="diagram"><code>   run #1     (3, 4)  ──►  ┌─────────┐  ──►  7
+                           │         │
+   run #2     (3, 4)  ──►  │ PROGRAM │  ──►  7
+                           │         │
+   run #999   (3, 4)  ──►  └─────────┘  ──►  7
+
+              same                            same
+              input                          output
+                                            ALWAYS</code></pre>
+
+      <p class="caption">
+        Same input, same output, always. This is the guarantee you are about to learn the
+        name of — and, eventually, learn to live without.
+      </p>
+
+      <h3 id="c1-technical">The technical explanation: determinism, named</h3>
+
+      <div class="keyterm">
+        <span class="term">Determinism</span>
+        <p>
+          <strong>Plain meaning:</strong> the program does the same thing every time you
+          give it the same input.
+        </p>
+        <p>
+          <strong>Technical definition:</strong> a computation is deterministic if its
+          output is entirely a function of its input and its starting state — no hidden
+          influences, no variation between runs.
+        </p>
+        <p>
+          <strong>Why it exists as a concept:</strong> because it is the assumption
+          underneath every debugging technique you have ever used. "It works on my machine"
+          is only a meaningful complaint in a world where things are supposed to behave
+          identically everywhere.
+        </p>
+      </div>
+
+      <p>
+        Determinism buys you three things, and they are worth naming because you are going
+        to miss all three later:
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>What determinism gives you</th><th>What it means in practice</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Reproducible bugs</td>
+              <td>If it broke once, you can make it break again on demand — which is the entire foundation of debugging</td>
+            </tr>
+            <tr>
+              <td>Testing that means something</td>
+              <td>A test that passes today passes tomorrow. One run is enough evidence.</td>
+            </tr>
+            <tr>
+              <td>Composability you can trust</td>
+              <td>If <code>f</code> is reliable and <code>g</code> is reliable, then <code>g(f(x))</code> is reliable. Confidence multiplies cleanly.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Keep that third row in mind especially. In Chapter 8 we will find that when a
+        component succeeds only 90% of the time, chaining five of them together gives you
+        59% — and suddenly "composability" becomes something you have to engineer for
+        rather than assume.
+      </p>
+
+      <h3 id="c1-misconceptions">Common misconceptions</h3>
+
+      <h4>"Programs are complicated things"</h4>
+      <p>
+        Large programs are large, but they are not made of complicated stuff. They are made
+        of enormous numbers of simple, deterministic steps. A million-line codebase is a
+        million small certainties stacked up. The complexity is in the <em>arrangement</em>,
+        never in the individual pieces — which is a theme that returns when we start
+        arranging agent components in Part IV.
+      </p>
+
+      <h4>"Random numbers break determinism"</h4>
+      <p>
+        They don't, quite. <code>random.random()</code> in Python is
+        <em>pseudo</em>-random: it's a deterministic formula that produces
+        random-<em>looking</em> numbers from a starting value called a seed. Fix the seed and
+        you get the identical sequence every time. This is why
+        <code>random.seed(42)</code> makes experiments reproducible, and it is a trick we
+        will reach for again in Chapter 50 when we try — and partly fail — to make agents
+        reproducible.
+      </p>
+
+      <h4>"A program that reads from a database isn't deterministic"</h4>
+      <p>
+        The program still is; its <em>inputs</em> changed. This is a useful habit of
+        thought: when something behaves inconsistently, first ask whether the logic varies
+        or whether the inputs do. Most of the time it's the inputs. It is also, as it
+        happens, the first question of failure analysis in Part VIII.
+      </p>
+
+      <h3 id="c1-implementation">Tiny implementation: our first companion</h3>
+
+      <p>
+        Let's meet the example that will follow us through this whole book.
+      </p>
+
+      <p>
+        <strong>The problem.</strong> A company receives customer support emails. Each one
+        needs to go to the right team: billing, technical, account, or refunds. Right now a
+        person reads each email and forwards it. We would like a program to do it.
+      </p>
+
+      <p>
+        The obvious first attempt — and genuinely the right first attempt — is to look for
+        keywords.
+      </p>
+
+<pre><code>def route_ticket(email_text):
+    """Route a support email to a team. Returns a team name."""
+    text = email_text.lower()
+
+    if "refund" in text or "money back" in text:
+        return "refunds"
+    if "password" in text or "login" in text or "error" in text:
+        return "technical"
+    if "invoice" in text or "charge" in text or "billing" in text:
+        return "billing"
+    if "account" in text or "profile" in text:
+        return "account"
+
+    return "unknown"</code></pre>
+
+      <p>
+        Eleven lines. Let's take them apart.
+      </p>
+
+      <h3 id="c1-walkthrough">Walkthrough</h3>
+
+      <ul>
+        <li>
+          <code>def route_ticket(email_text):</code> — defines a function. One input (the
+          email's text), one output (a team name). This input-to-output shape is the
+          diagram from earlier, made real.
+        </li>
+        <li>
+          <code>text = email_text.lower()</code> — converts to lowercase so that "Refund",
+          "REFUND", and "refund" all match. A tiny bit of <em>normalisation</em>: reshaping
+          messy input into a predictable form before working with it. Remember this idea;
+          it comes back constantly.
+        </li>
+        <li>
+          <code>if "refund" in text …</code> — checks whether that substring appears
+          anywhere. Note the order: refunds is checked <em>first</em>, so an email
+          containing both "refund" and "charge" routes to refunds. The order encodes a
+          priority decision, and it was made silently. Silent decisions like this one are
+          where bugs live.
+        </li>
+        <li>
+          <code>return "unknown"</code> — the fallback when nothing matched. Having an
+          explicit "I don't know" is better engineering than guessing, and it will matter
+          enormously when we start measuring things in Part VII.
+        </li>
+      </ul>
+
+      <p>
+        Now trace it by hand. Email: <em>"Hi, I forgot my password and can't log in."</em>
+      </p>
+
+<pre class="diagram"><code>   text = "hi, i forgot my password and can't log in."
+
+   check "refund"     → not present    ✗
+   check "money back" → not present    ✗
+   check "password"   → PRESENT        ✓  →  return "technical"
+
+   result: technical                    ← correct</code></pre>
+
+      <p>
+        It works. And — critically — it will work identically forever. Run it a thousand
+        times on that email and you get "technical" a thousand times. That is determinism,
+        doing its job.
+      </p>
+
+      <h3 id="c1-failure">Where it breaks</h3>
+
+      <p>
+        Now try this email:
+      </p>
+
+      <p style="padding-left:20px;border-left:3px solid var(--rule);font-style:italic">
+        "Hey — I was charged twice for the same thing last month and I'd like my money
+        back please."
+      </p>
+
+<pre class="diagram"><code>   check "refund"     → not present    ✗
+   check "money back" → PRESENT        ✓  →  return "refunds"
+
+   result: refunds                      ← arguably correct!</code></pre>
+
+      <p>
+        Lucky. We caught it because someone thought to add "money back" to the list. Now
+        try this one:
+      </p>
+
+      <p style="padding-left:20px;border-left:3px solid var(--rule);font-style:italic">
+        "I've been billed for a subscription I cancelled in March. Can you sort this out?"
+      </p>
+
+<pre class="diagram"><code>   check "refund"     → not present    ✗
+   check "money back" → not present    ✗
+   check "password"   → not present    ✗
+   check "login"      → not present    ✗
+   check "error"      → not present    ✗
+   check "invoice"    → not present    ✗
+   check "charge"     → not present    ✗   ("billed" ≠ "charge")
+   check "billing"    → not present    ✗   ("billed" ≠ "billing")
+   check "account"    → not present    ✗
+   check "profile"    → not present    ✗
+
+   result: unknown                      ← a human would say refunds</code></pre>
+
+      <p>
+        The word "billed" is not the word "billing." The program cannot see that they are
+        related, because it does not know what words <em>mean</em> — it only knows whether
+        one string appears inside another.
+      </p>
+
+      <p>
+        Notice something important, though: <strong>it fails the same way every time.</strong>
+        That is not a small consolation. It means you can reproduce the bug instantly,
+        reason about it precisely, and know with certainty when you've fixed it. Determinism
+        makes failure legible.
+      </p>
+
+      <h3 id="c1-improve">The improvement — and why it can't work</h3>
+
+      <p>
+        The obvious fix is more keywords:
+      </p>
+
+<pre><code>    if any(word in text for word in
+           ["invoice", "charge", "charged", "billing", "billed",
+            "payment", "paid", "subscription", "receipt"]):
+        return "billing"</code></pre>
+
+      <p>
+        Better. And now try: <em>"You've taken money from my card for something I don't
+        remember signing up for."</em> No keyword matches. Add "taken money," "my card."
+        Then someone writes <em>"there's a mystery transaction on my statement."</em> Add
+        those too.
+      </p>
+
+      <p>
+        You can see where this goes. English has an effectively unlimited number of ways to
+        express "you charged me and I'm unhappy about it." You cannot enumerate them. Not
+        because you aren't trying hard enough — because the set is not finite.
+      </p>
+
+      <div class="note warn">
+        <span class="note-label">The gap this book exists to fill</span>
+        <p>
+          A deterministic program can only recognise what you explicitly told it to
+          recognise. That is simultaneously its greatest strength — total predictability —
+          and the exact reason it cannot handle language. Every remaining chapter of this
+          book is, in one way or another, about what you get and what you give up when you
+          reach for something that <em>can</em>.
+        </p>
+      </div>
+
+      <h3>Connection to what comes next</h3>
+
+      <p>
+        In Chapter 2 we ask how one program talks to another program that lives somewhere
+        else — because the thing that can understand "billed" means "billing" is not going
+        to live on your laptop. Chapter 3 asks what it means for a machine to
+        <em>learn</em> a rule instead of being told it. And Chapter 4 introduces the
+        specific machine we'll be using.
+      </p>
+
+      <p>
+        By Chapter 8 you will meet the price: that machine is <em>not deterministic</em>.
+        Ask it the same question twice and you may get two different answers. Everything
+        listed in the table above — reproducible bugs, meaningful tests, composable
+        confidence — is put at risk. Chapters 43 through 58 are essentially a long campaign
+        to win back as much of it as possible.
+      </p>
+
+      <h3 id="c1-hackathon">Connection to the hackathon</h3>
+
+      <p>
+        This looks distant from Track 1, but it is closer than it appears.
+      </p>
+
+      <p>
+        The system you will build is itself a program. Parts of it will be rigidly
+        deterministic — the runner that executes agents, the evaluator that scores them,
+        the code that records what happened. Other parts will be non-deterministic: the
+        component that proposes an agent design, the component that diagnoses failures.
+      </p>
+
+      <p>
+        <strong>Knowing which parts are which is a core engineering skill</strong>, and it
+        separates good submissions from fragile ones. If your evaluator is accidentally
+        non-deterministic, your improvement curve is measuring noise and you will not know
+        it. If your generator is accidentally deterministic, it produces the same
+        architecture for every task and your system does not generalise. Both are real
+        failure modes. Both are avoidable if you can tell the two kinds of component apart —
+        which starts here.
+      </p>
+
+      <div class="mental-model">
+        <span class="mm-label">Mental model to remember</span>
+        <p>A program is a promise: same input, same output, always. Agents break that promise — and everything hard about them follows from the break.</p>
+      </div>
+
+      <div class="apparatus quiz" id="c1-quiz">
+        <span class="apparatus-label">Mini quiz</span>
+        <p><strong>1.</strong> A program reads today's date and prints a greeting that differs on weekends. Is it deterministic? Explain your reasoning in terms of inputs.</p>
+        <p><strong>2.</strong> Our router checks "refund" before "charge." Write an email where that ordering produces a debatable result, and say which team you'd argue for.</p>
+        <p><strong>3.</strong> You add fifty more keywords and accuracy improves from 61% to 68%. Why should you be suspicious of continuing down this path — and what would you expect the curve to do?</p>
+        <p><strong>4.</strong> Someone claims their program is broken because "it gives different answers each run." Name two possible causes that have nothing to do with the logic being wrong.</p>
+      </div>
+
+      <div class="apparatus">
+        <span class="apparatus-label">Practical exercise</span>
+        <p>
+          Type <code>route_ticket</code> into a file and run it. Then write
+          <strong>five real-sounding support emails that it routes incorrectly</strong> —
+          not nonsense inputs, but things a genuine customer might plausibly write.
+        </p>
+        <p>
+          For each one, write a single sentence naming <em>why</em> it failed. You will find
+          the reasons fall into a small number of recognisable groups: a synonym you didn't
+          list, a phrasing with no keyword at all, an email covering two topics at once.
+        </p>
+        <p>
+          Keep this file. In Chapter 89 you will hand these exact examples to a system that
+          fixes them without your help — and you will already know what makes each one hard.
+          You have just written your first test set, which is a term you will meet properly
+          in Chapter 52.
+        </p>
+      </div>
+
+      <div class="apparatus ready">
+        <span class="apparatus-label">You are ready to move on when…</span>
+        <ul>
+          <li>You can explain determinism to someone else without using the word "deterministic."</li>
+          <li>You can say precisely why the keyword router fails on "I've been billed" — and why adding keywords is not a real fix.</li>
+          <li>You understand that the router's failure being <em>consistent</em> is a feature, not just a curiosity.</li>
+          <li>You have five failing emails written down in a file.</li>
+        </ul>
+      </div>
+    </article>
+
+  </main>
+
+  <footer class="colophon">
+    <p>
+      <em>From Programs to Agents</em> — a textbook written chapter by chapter.
+      Chapters 0 and 1 of a planned 101. The full curriculum, dependency map, and
+      reading tracks live in the companion plan, <em>The Agent Engineering Ladder</em>.
+      Next: Chapter 2, <em>What is an API, and why everything is one</em>.
+    </p>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+    var targets = links
+      .map(function (a) { return document.querySelector(a.getAttribute('href')); })
+      .filter(Boolean);
+
+    if (!('IntersectionObserver' in window) || !targets.length) return;
+
+    var visible = new Set();
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) visible.add(entry.target.id);
+        else visible.delete(entry.target.id);
+      });
+
+      var first = targets.filter(function (t) { return visible.has(t.id); })[0];
+      if (!first) return;
+
+      links.forEach(function (a) {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + first.id);
+      });
+    }, { rootMargin: '-8% 0px -74% 0px', threshold: 0 });
+
+    targets.forEach(function (t) { observer.observe(t); });
+  })();
+</script>
