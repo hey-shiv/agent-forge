@@ -87,28 +87,34 @@ the AO-usage requirement is evidenced on camera.
 
 ---
 
-## 2:30 – 2:50 · Honesty section
+## 2:30 – 2:55 · Honesty section — *do not cut this*
 
-> "Two things I'd want a judge to know.
+> "Now the part I most want you to hear.
 >
-> First, single runs are noisy — this model can't be pinned to temperature zero,
-> so the headline numbers are means across three repeats with the range stated,
-> not a single lucky curve.
+> I first reported three runs of that unseen domain, all reaching a perfect
+> 1.0. Then a release check from a clean clone scored 0.58 with zero
+> improvement. One extra sample destroyed my headline.
 >
-> Second, the scheduler originally showed a much flashier climb, 0.17 to 0.67.
-> When I looked into it, most of that was the system fighting a bug in my own
-> framework — a tool-iteration cap was cutting its search off. I fixed the cap
-> and the honest curve is smaller. That's the one in the report."
+> So I measured eight runs per domain — 24 total, in `report/variance.json`.
+> The real numbers: mean gain of about ten points on the unseen domain, ten on
+> ticket routing, six on invoices — and **six runs out of twenty-four improve
+> nothing at all**. The curves on screen in `report/index.html` are
+> illustrative examples, not the statistics; the statistics are in that file.
+>
+> There's a second one like this. The scheduler originally showed a dramatic
+> 0.17 to 0.67 climb, and most of it turned out to be the system fighting a
+> bug in my own framework — a tool-iteration cap cutting its search off. I
+> fixed the cap; the honest curve is smaller. That's the one in the report."
 
 ---
 
-## 2:50 – 3:00 · Close
+## 2:55 – 3:05 · Close
 
 > "Three domains, three different shapes, one unchanged system. It improves on
-> all three, it catches its own regressions, and it works on a task it was never
-> built for.
+> all three on average, it catches its own regressions, and it works on a task
+> it was never built for — measured over twenty-four runs, not a lucky one.
 >
-> Built end to end in AO."
+> Built with Claude Code, with AO orchestrating the final phase."
 
 ---
 

@@ -1,7 +1,7 @@
 # Agent Forge — Track 1 submission
 
 **Syndicate by Maximor · Track 1: Automated Agent Engineering**
-Shivashant Manohar · built end to end in AO
+Shivashant Manohar · final phase orchestrated with AO
 
 ---
 
@@ -105,31 +105,49 @@ That third category is what forces the system past a prompt-editing plateau.
 
 ## Results
 
-Means over **3 repeat runs**, 4 rounds each, with the full range shown.
-9 runs total, all logged in `runs/` and auditable.
+**n = 8 runs per domain, 4 rounds each. 24 runs total.** Measured by
+`scripts/measure_variance.py` and recorded in `report/variance.json`, which is
+the authoritative statistical source for every number in this section.
 
-| Domain | Shape | Round 0 (mean) | Best (mean) | Gain | Gain range |
-|---|---|---|---|---|---|
-| `ticket_routing` | classification | 0.815 | 0.926 | **+0.111** | +0.056 – +0.167 |
-| `invoice_extraction` | structured extraction | 0.911 | 0.951 | **+0.040** | +0.000 – +0.093 |
-| `meeting_scheduler` | constraint satisfaction · **unseen** | 0.917 | **1.000** | **+0.083** | +0.000 – +0.167 |
+| Domain | Shape | Round 0 | Best | Gain | Gain sd | Zero-gain runs |
+|---|---|---|---|---|---|---|
+| `ticket_routing` | classification | 0.785 | 0.889 | **+0.104** | 0.081 | 2 / 8 |
+| `invoice_extraction` | structured extraction | 0.898 | 0.958 | **+0.060** | 0.065 | 1 / 8 |
+| `meeting_scheduler` | constraint satisfaction · **unseen** | 0.812 | 0.917 | **+0.104** | 0.107 | 3 / 8 |
 
-The line that matters most is the third. On a domain the framework had never
-seen, with no code changed to accommodate it, the system reached **1.000 in all
-three repeats** (range 1.000–1.000). It was handed a goal, one tool description
-and a scoring function, and it designed an agent that solves the task perfectly.
+Read that honestly: the system improves the agent it wrote **on average, in
+all three domains, including one it had never seen** — and it fails to
+improve anything in **6 of 24 runs**. On the unseen domain, individual runs
+range from a perfect 1.000 down to 0.083 mid-run before partial recovery.
 
-Reliability was 1.000 across every run — no agent crashes. Total measurement
-cost: 195 model calls, 92.6k input / 125.9k output tokens.
+Reliability was 1.000 across all 24 runs — no agent crashes in any sample.
 
-See `report/index.html` for per-round curves, failure clusters, and the system's
-own stated reason for every change.
+Per-round curves, failure clusters, and the system's own stated reason for
+every change are in `report/index.html` — those curves are **illustrative
+examples** (3 fixed example runs per domain), not the statistical sample.
+Raw distributions for all 24 measured runs are in `report/variance.json`;
+per-round logs for the example runs are in `runs/`.
 
-> **Why repeats:** `gpt-5-nano` is non-deterministic and *rejects* the
-> `temperature` parameter, so it cannot be pinned. Repeated runs of the same
-> domain produced round-0 accuracies spanning **0.722 to 1.000**. A single curve
-> is a sample, not a measurement. Reporting one would have been the easiest way
-> to make this project look better than it is.
+### How this number got corrected — and why that matters
+
+An earlier draft of this section reported something much better: three
+repeats of `meeting_scheduler`, all three reaching 1.000, range 1.000–1.000.
+It looked like a clean win.
+
+Then a release check — running the demo from a fresh clone as a judge would —
+scored **0.583 with zero gain**. One extra sample contradicted the headline.
+Three runs had produced a confident claim that a fourth falsified.
+
+Taking n=8 gives the table above: mean gain +0.104, but 3 runs in 8 gain
+nothing. `scripts/measure_variance.py` exists because of this, and the
+"all three reached 1.000" claim was luck, not a result. The corrected, worse
+number is the one reported here.
+
+> **Why n=8, not 3:** `gpt-5-nano` is non-deterministic and *rejects* the
+> `temperature` parameter, so it cannot be pinned. Eval sets are 12–19 items,
+> so a single item moves accuracy 5–8 points. Three repeats produced a
+> confident-looking but false claim (above); eight is the smallest sample
+> that exposed it.
 
 All four scored axes are tracked per round: accuracy, reliability (crash-free
 rate), cost (tokens — exact), and speed (latency).
@@ -179,10 +197,17 @@ and the improver is explicitly required to change `orchestration` rather than
 reword again (`_stuck_cluster` in `improver.py`, unit-tested in
 `tests/test_agent_forge.py`).
 
-*Evidence, stated at its true strength:* no comparable collapse occurred in the
-three post-fix runs — the worst round 0 was 0.833 rather than 0.333, and every
-repeat reached 1.000. Three runs is suggestive, not conclusive; a proper
-before/after would need many more samples than the hackathon window allowed.
+*Evidence, stated at its true strength:* the first three post-fix runs all
+reached 1.000, which read as confirmation the collapse was gone. It was not —
+`report/variance.json`'s n=8 sample of this same post-fix system includes
+runs that dip as low as 0.083–0.167 mid-run before partially recovering, and
+3 of 8 end with zero net gain. The escalation rule may still be doing its job
+(these dips recover somewhat rather than flatlining at the old 0.167 for all
+four rounds), but `measure_variance.py` does not record per-round
+orchestration, so that mechanism can't be confirmed from this data — only
+the original 3 runs' full logs in `runs/` show orchestration per round, and 3
+runs is too few to generalize from. This is a claim we can no longer make at
+full confidence; treat it as unresolved rather than demonstrated.
 
 ### 4. Two domain designs had to be thrown away
 
@@ -212,12 +237,14 @@ before/after would need many more samples than the hackathon window allowed.
 
 ## How AO was used
 
-Built end to end in AO across the hackathon: framework design, all three
-domains, the failure-cluster taxonomy, the rollback and escalation mechanisms,
-the report generator, and the diagnosis of every issue in the two sections
-above. The bugs in "What went wrong" were found by reading real run output in
-AO, not by guessing — including the tool-iteration artifact, which was caught
-only because the failure clusters were named specifically enough to look wrong.
+The framework, all three domains, and the report generator were built with
+Claude Code directly. AO was adopted in the final phase of the build, to
+orchestrate the remaining work as parallel worker sessions — each in its own
+git worktree against `github.com/hey-shiv/agent-forge` — planned and
+dispatched by an AO orchestrator agent. The bugs in "What went wrong" were
+found by reading real run output, not by guessing — including the
+tool-iteration artifact, which was caught only because the failure clusters
+were named specifically enough to look wrong.
 
 ---
 
@@ -229,6 +256,11 @@ python3 -m venv .venv
 cp .env.example .env      # add OPENAI_API_KEY
 
 .venv/bin/python -m scripts.generality_demo         # the core claim
-.venv/bin/python -m scripts.run_all --rounds 4 --repeats 3
+.venv/bin/python -m scripts.run_all --rounds 4 --repeats 3   # illustrative example curves
 .venv/bin/python -m scripts.make_report             # -> report/index.html
+
+# reproduce the actual statistics (n=8/domain, this section's numbers):
+.venv/bin/python -m scripts.measure_variance --domain ticket_routing --repeats 8
+.venv/bin/python -m scripts.measure_variance --domain invoice_extraction --repeats 8
+.venv/bin/python -m scripts.measure_variance --domain meeting_scheduler --repeats 8
 ```

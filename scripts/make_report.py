@@ -303,26 +303,32 @@ def domain_section(group: dict, idx: int) -> str:
       <h2>{esc(name)}</h2>
 
       <div class="tiles">
-        <div class="tile"><span class="label">Round 0 mean</span>
+        <div class="tile"><span class="label">Round 0 (examples)</span>
           <span class="value">{mean(starts):.3f}</span>
           <span class="range">{min(starts):.3f}–{max(starts):.3f}</span></div>
-        <div class="tile accent"><span class="label">Best mean</span>
+        <div class="tile accent"><span class="label">Best (examples)</span>
           <span class="value">{mean(bests):.3f}</span>
           <span class="range">{min(bests):.3f}–{max(bests):.3f}</span></div>
-        <div class="tile"><span class="label">Gain mean</span>
+        <div class="tile"><span class="label">Gain (examples)</span>
           <span class="value">{mean(gains):+.3f}</span>
           <span class="range">{min(gains):+.3f}–{max(gains):+.3f}</span></div>
-        <div class="tile"><span class="label">Repeats</span>
+        <div class="tile"><span class="label">Example runs</span>
           <span class="value">{len(runs)}</span></div>
       </div>
+      <p class="src" style="margin:-14px 0 24px;">Tiles above summarize only
+      these {len(runs)} illustrative runs. Statistical means (n=8/domain) are
+      in <code>report/variance.json</code> and <code>SUBMISSION.md</code>.</p>
 
       <figure>
         {multi_curve_chart(runs, idx)}
-        <figcaption>All {len(runs)} repeat runs on shared axes. Hollow, dashed
-        markers are rounds whose change scored worse than the best so far and was
-        discarded. The spread between curves is real: this model cannot be pinned
-        to a fixed temperature, so round 0 alone varies by
-        {max(starts) - min(starts):.3f} across identical runs.</figcaption>
+        <figcaption>{len(runs)} illustrative example runs on shared axes —
+        not the statistical sample. Hollow, dashed markers are rounds whose
+        change scored worse than the best so far and was discarded. The spread
+        shown here is real but small-n: this model cannot be pinned to a fixed
+        temperature, so round 0 alone varies by
+        {max(starts) - min(starts):.3f} across these {len(runs)} runs. The
+        measured distribution across n=8 runs is in
+        <code>report/variance.json</code>.</figcaption>
       </figure>
 
       <h3>Detail — the repeat with the most headroom</h3>
@@ -476,14 +482,24 @@ def build() -> Path:
     runs it, clusters its failures into named modes, and rewrites the agent to
     target the largest cluster. Every number below was produced by the loop
     running unattended; rounds that scored worse than the best so far were
-    discarded rather than carried forward. Numbers are means over 3 repeat runs with the full range shown, because this model cannot be pinned to a fixed temperature and a single curve is a sample, not a measurement.</p>
+    discarded rather than carried forward.</p>
+    <p class="sub"><strong>The curves and tables below are 3 illustrative
+    example runs per domain, not a statistical sample.</strong> This model
+    cannot be pinned to a fixed temperature, and 3 runs previously produced a
+    confident-looking claim (all reaching 1.000) that a later run contradicted.
+    The actual distribution — mean gain, spread, and the rate of runs that
+    improve nothing — is measured at n=8 per domain (24 total) in
+    <code>report/variance.json</code>, summarized in <code>SUBMISSION.md</code>.</p>
   </header>
 
   <div class="overview">
-    <h2>Overview</h2>
+    <h2>Overview <span style="font-weight:400;font-size:13px;color:var(--ink-3);">— 3 example runs per domain, illustrative only</span></h2>
+    <p class="sub" style="margin-top:-10px;">For the real sample (n=8/domain,
+    24 total) see <code>report/variance.json</code> and the results table in
+    <code>SUBMISSION.md</code>.</p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Domain</th><th>Shape</th><th>Round 0 mean</th><th>Best mean</th><th>Gain mean</th><th>Gain range</th><th>Repeats</th></tr></thead>
+        <thead><tr><th>Domain</th><th>Shape</th><th>Round 0 (examples)</th><th>Best (examples)</th><th>Gain (examples)</th><th>Gain range</th><th>Example runs</th></tr></thead>
         <tbody>{overview}</tbody>
       </table>
     </div>

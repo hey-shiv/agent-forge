@@ -91,14 +91,24 @@
     runs it, clusters its failures into named modes, and rewrites the agent to
     target the largest cluster. Every number below was produced by the loop
     running unattended; rounds that scored worse than the best so far were
-    discarded rather than carried forward. Numbers are means over 3 repeat runs with the full range shown, because this model cannot be pinned to a fixed temperature and a single curve is a sample, not a measurement.</p>
+    discarded rather than carried forward.</p>
+    <p class="sub"><strong>The curves and tables below are 3 illustrative
+    example runs per domain, not a statistical sample.</strong> This model
+    cannot be pinned to a fixed temperature, and 3 runs previously produced a
+    confident-looking claim (all reaching 1.000) that a later run contradicted.
+    The actual distribution — mean gain, spread, and the rate of runs that
+    improve nothing — is measured at n=8 per domain (24 total) in
+    <code>report/variance.json</code>, summarized in <code>SUBMISSION.md</code>.</p>
   </header>
 
   <div class="overview">
-    <h2>Overview</h2>
+    <h2>Overview <span style="font-weight:400;font-size:13px;color:var(--ink-3);">— 3 example runs per domain, illustrative only</span></h2>
+    <p class="sub" style="margin-top:-10px;">For the real sample (n=8/domain,
+    24 total) see <code>report/variance.json</code> and the results table in
+    <code>SUBMISSION.md</code>.</p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Domain</th><th>Shape</th><th>Round 0 mean</th><th>Best mean</th><th>Gain mean</th><th>Gain range</th><th>Repeats</th></tr></thead>
+        <thead><tr><th>Domain</th><th>Shape</th><th>Round 0 (examples)</th><th>Best (examples)</th><th>Gain (examples)</th><th>Gain range</th><th>Example runs</th></tr></thead>
         <tbody><tr><td>invoice_extraction</td><td class='shape'>structured extraction</td><td class='num'>0.911</td><td class='num'>0.951</td><td class='num'>+0.040</td><td class='num'>+0.000 – +0.093</td><td class='num'>3</td></tr><tr><td>meeting_scheduler</td><td class='shape'>constraint satisfaction &nbsp;<b>· unseen</b></td><td class='num'>0.917</td><td class='num'>1.000</td><td class='num'>+0.083</td><td class='num'>+0.000 – +0.167</td><td class='num'>3</td></tr><tr><td>ticket_routing</td><td class='shape'>classification</td><td class='num'>0.815</td><td class='num'>0.926</td><td class='num'>+0.111</td><td class='num'>+0.056 – +0.167</td><td class='num'>3</td></tr></tbody>
       </table>
     </div>
@@ -109,26 +119,32 @@
       <h2>invoice_extraction</h2>
 
       <div class="tiles">
-        <div class="tile"><span class="label">Round 0 mean</span>
+        <div class="tile"><span class="label">Round 0 (examples)</span>
           <span class="value">0.911</span>
           <span class="range">0.840–0.947</span></div>
-        <div class="tile accent"><span class="label">Best mean</span>
+        <div class="tile accent"><span class="label">Best (examples)</span>
           <span class="value">0.951</span>
           <span class="range">0.933–0.973</span></div>
-        <div class="tile"><span class="label">Gain mean</span>
+        <div class="tile"><span class="label">Gain (examples)</span>
           <span class="value">+0.040</span>
           <span class="range">+0.000–+0.093</span></div>
-        <div class="tile"><span class="label">Repeats</span>
+        <div class="tile"><span class="label">Example runs</span>
           <span class="value">3</span></div>
       </div>
+      <p class="src" style="margin:-14px 0 24px;">Tiles above summarize only
+      these 3 illustrative runs. Statistical means (n=8/domain) are
+      in <code>report/variance.json</code> and <code>SUBMISSION.md</code>.</p>
 
       <figure>
         <svg viewBox="0 0 560 250" role="img" aria-label="Accuracy by round for 3 repeat runs on shared axes."><line x1="52" y1="208.0" x2="540" y2="208.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="212.0" text-anchor="end" class="tick">0.69</text><line x1="52" y1="161.5" x2="540" y2="161.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="165.5" text-anchor="end" class="tick">0.77</text><line x1="52" y1="115.0" x2="540" y2="115.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="119.0" text-anchor="end" class="tick">0.84</text><line x1="52" y1="68.5" x2="540" y2="68.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="72.5" text-anchor="end" class="tick">0.92</text><line x1="52" y1="22.0" x2="540" y2="22.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="26.0" text-anchor="end" class="tick">1.00</text><text x="52.0" y="228" text-anchor="middle" class="tick">R0</text><text x="214.7" y="228" text-anchor="middle" class="tick">R1</text><text x="377.3" y="228" text-anchor="middle" class="tick">R2</text><text x="540.0" y="228" text-anchor="middle" class="tick">R3</text><polyline points="52.0,53.6 214.7,53.6 377.3,61.6 540.0,85.3" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="53.6" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="53.6" r="13" fill="transparent"><title>repeat 1, round 0 — 0.947</title></circle><circle cx="214.7" cy="53.6" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="53.6" r="13" fill="transparent"><title>repeat 1, round 1 — 0.947</title></circle><circle cx="377.3" cy="61.6" r="4" fill="var(--surface)" stroke="var(--series-1)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="377.3" cy="61.6" r="13" fill="transparent"><title>repeat 1, round 2 — 0.933 (rolled back)</title></circle><circle cx="540.0" cy="85.3" r="4" fill="var(--surface)" stroke="var(--series-1)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="540.0" cy="85.3" r="13" fill="transparent"><title>repeat 1, round 3 — 0.893 (rolled back)</title></circle><polyline points="52.0,53.6 214.7,37.9 377.3,37.9 540.0,53.6" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="53.6" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="53.6" r="13" fill="transparent"><title>repeat 2, round 0 — 0.947</title></circle><circle cx="214.7" cy="37.9" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="37.9" r="13" fill="transparent"><title>repeat 2, round 1 — 0.973</title></circle><circle cx="377.3" cy="37.9" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="377.3" cy="37.9" r="13" fill="transparent"><title>repeat 2, round 2 — 0.973</title></circle><circle cx="540.0" cy="53.6" r="4" fill="var(--surface)" stroke="var(--series-1)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="540.0" cy="53.6" r="13" fill="transparent"><title>repeat 2, round 3 — 0.947 (rolled back)</title></circle><polyline points="52.0,117.0 214.7,61.6 377.3,148.6 540.0,77.4" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="117.0" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="117.0" r="13" fill="transparent"><title>repeat 3, round 0 — 0.840</title></circle><circle cx="214.7" cy="61.6" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="61.6" r="13" fill="transparent"><title>repeat 3, round 1 — 0.933</title></circle><circle cx="377.3" cy="148.6" r="4" fill="var(--surface)" stroke="var(--series-1)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="377.3" cy="148.6" r="13" fill="transparent"><title>repeat 3, round 2 — 0.787 (rolled back)</title></circle><circle cx="540.0" cy="77.4" r="4" fill="var(--surface)" stroke="var(--series-1)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="540.0" cy="77.4" r="13" fill="transparent"><title>repeat 3, round 3 — 0.907 (rolled back)</title></circle></svg>
-        <figcaption>All 3 repeat runs on shared axes. Hollow, dashed
-        markers are rounds whose change scored worse than the best so far and was
-        discarded. The spread between curves is real: this model cannot be pinned
-        to a fixed temperature, so round 0 alone varies by
-        0.107 across identical runs.</figcaption>
+        <figcaption>3 illustrative example runs on shared axes —
+        not the statistical sample. Hollow, dashed markers are rounds whose
+        change scored worse than the best so far and was discarded. The spread
+        shown here is real but small-n: this model cannot be pinned to a fixed
+        temperature, so round 0 alone varies by
+        0.107 across these 3 runs. The
+        measured distribution across n=8 runs is in
+        <code>report/variance.json</code>.</figcaption>
       </figure>
 
       <h3>Detail — the repeat with the most headroom</h3>
@@ -159,26 +175,32 @@
       <h2>meeting_scheduler</h2>
 
       <div class="tiles">
-        <div class="tile"><span class="label">Round 0 mean</span>
+        <div class="tile"><span class="label">Round 0 (examples)</span>
           <span class="value">0.917</span>
           <span class="range">0.833–1.000</span></div>
-        <div class="tile accent"><span class="label">Best mean</span>
+        <div class="tile accent"><span class="label">Best (examples)</span>
           <span class="value">1.000</span>
           <span class="range">1.000–1.000</span></div>
-        <div class="tile"><span class="label">Gain mean</span>
+        <div class="tile"><span class="label">Gain (examples)</span>
           <span class="value">+0.083</span>
           <span class="range">+0.000–+0.167</span></div>
-        <div class="tile"><span class="label">Repeats</span>
+        <div class="tile"><span class="label">Example runs</span>
           <span class="value">3</span></div>
       </div>
+      <p class="src" style="margin:-14px 0 24px;">Tiles above summarize only
+      these 3 illustrative runs. Statistical means (n=8/domain) are
+      in <code>report/variance.json</code> and <code>SUBMISSION.md</code>.</p>
 
       <figure>
         <svg viewBox="0 0 560 250" role="img" aria-label="Accuracy by round for 3 repeat runs on shared axes."><line x1="52" y1="208.0" x2="540" y2="208.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="212.0" text-anchor="end" class="tick">0.65</text><line x1="52" y1="161.5" x2="540" y2="161.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="165.5" text-anchor="end" class="tick">0.74</text><line x1="52" y1="115.0" x2="540" y2="115.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="119.0" text-anchor="end" class="tick">0.82</text><line x1="52" y1="68.5" x2="540" y2="68.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="72.5" text-anchor="end" class="tick">0.91</text><line x1="52" y1="22.0" x2="540" y2="22.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="26.0" text-anchor="end" class="tick">1.00</text><text x="52.0" y="228" text-anchor="middle" class="tick">R0</text><text x="214.7" y="228" text-anchor="middle" class="tick">R1</text><text x="377.3" y="228" text-anchor="middle" class="tick">R2</text><text x="540.0" y="228" text-anchor="middle" class="tick">R3</text><polyline points="52.0,22.0 214.7,110.6 377.3,154.9 540.0,110.6" fill="none" stroke="var(--series-2)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="22.0" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="22.0" r="13" fill="transparent"><title>repeat 1, round 0 — 1.000</title></circle><circle cx="214.7" cy="110.6" r="4" fill="var(--surface)" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="214.7" cy="110.6" r="13" fill="transparent"><title>repeat 1, round 1 — 0.833 (rolled back)</title></circle><circle cx="377.3" cy="154.9" r="4" fill="var(--surface)" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="377.3" cy="154.9" r="13" fill="transparent"><title>repeat 1, round 2 — 0.750 (rolled back)</title></circle><circle cx="540.0" cy="110.6" r="4" fill="var(--surface)" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="540.0" cy="110.6" r="13" fill="transparent"><title>repeat 1, round 3 — 0.833 (rolled back)</title></circle><polyline points="52.0,110.6 214.7,66.3 377.3,154.9 540.0,22.0" fill="none" stroke="var(--series-2)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="110.6" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="110.6" r="13" fill="transparent"><title>repeat 2, round 0 — 0.833</title></circle><circle cx="214.7" cy="66.3" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="66.3" r="13" fill="transparent"><title>repeat 2, round 1 — 0.917</title></circle><circle cx="377.3" cy="154.9" r="4" fill="var(--surface)" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="377.3" cy="154.9" r="13" fill="transparent"><title>repeat 2, round 2 — 0.750 (rolled back)</title></circle><circle cx="540.0" cy="22.0" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="540.0" cy="22.0" r="13" fill="transparent"><title>repeat 2, round 3 — 1.000</title></circle><polyline points="52.0,66.3 214.7,110.6 377.3,66.3 540.0,22.0" fill="none" stroke="var(--series-2)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="66.3" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="66.3" r="13" fill="transparent"><title>repeat 3, round 0 — 0.917</title></circle><circle cx="214.7" cy="110.6" r="4" fill="var(--surface)" stroke="var(--series-2)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="214.7" cy="110.6" r="13" fill="transparent"><title>repeat 3, round 1 — 0.833 (rolled back)</title></circle><circle cx="377.3" cy="66.3" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="377.3" cy="66.3" r="13" fill="transparent"><title>repeat 3, round 2 — 0.917</title></circle><circle cx="540.0" cy="22.0" r="4.5" fill="var(--series-2)" stroke="var(--surface)" stroke-width="2"/><circle cx="540.0" cy="22.0" r="13" fill="transparent"><title>repeat 3, round 3 — 1.000</title></circle></svg>
-        <figcaption>All 3 repeat runs on shared axes. Hollow, dashed
-        markers are rounds whose change scored worse than the best so far and was
-        discarded. The spread between curves is real: this model cannot be pinned
-        to a fixed temperature, so round 0 alone varies by
-        0.167 across identical runs.</figcaption>
+        <figcaption>3 illustrative example runs on shared axes —
+        not the statistical sample. Hollow, dashed markers are rounds whose
+        change scored worse than the best so far and was discarded. The spread
+        shown here is real but small-n: this model cannot be pinned to a fixed
+        temperature, so round 0 alone varies by
+        0.167 across these 3 runs. The
+        measured distribution across n=8 runs is in
+        <code>report/variance.json</code>.</figcaption>
       </figure>
 
       <h3>Detail — the repeat with the most headroom</h3>
@@ -209,26 +231,32 @@
       <h2>ticket_routing</h2>
 
       <div class="tiles">
-        <div class="tile"><span class="label">Round 0 mean</span>
+        <div class="tile"><span class="label">Round 0 (examples)</span>
           <span class="value">0.815</span>
           <span class="range">0.778–0.833</span></div>
-        <div class="tile accent"><span class="label">Best mean</span>
+        <div class="tile accent"><span class="label">Best (examples)</span>
           <span class="value">0.926</span>
           <span class="range">0.889–0.944</span></div>
-        <div class="tile"><span class="label">Gain mean</span>
+        <div class="tile"><span class="label">Gain (examples)</span>
           <span class="value">+0.111</span>
           <span class="range">+0.056–+0.167</span></div>
-        <div class="tile"><span class="label">Repeats</span>
+        <div class="tile"><span class="label">Example runs</span>
           <span class="value">3</span></div>
       </div>
+      <p class="src" style="margin:-14px 0 24px;">Tiles above summarize only
+      these 3 illustrative runs. Statistical means (n=8/domain) are
+      in <code>report/variance.json</code> and <code>SUBMISSION.md</code>.</p>
 
       <figure>
         <svg viewBox="0 0 560 250" role="img" aria-label="Accuracy by round for 3 repeat runs on shared axes."><line x1="52" y1="208.0" x2="540" y2="208.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="212.0" text-anchor="end" class="tick">0.68</text><line x1="52" y1="161.5" x2="540" y2="161.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="165.5" text-anchor="end" class="tick">0.76</text><line x1="52" y1="115.0" x2="540" y2="115.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="119.0" text-anchor="end" class="tick">0.84</text><line x1="52" y1="68.5" x2="540" y2="68.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="72.5" text-anchor="end" class="tick">0.92</text><line x1="52" y1="22.0" x2="540" y2="22.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="26.0" text-anchor="end" class="tick">1.00</text><text x="52.0" y="228" text-anchor="middle" class="tick">R0</text><text x="214.7" y="228" text-anchor="middle" class="tick">R1</text><text x="377.3" y="228" text-anchor="middle" class="tick">R2</text><text x="540.0" y="228" text-anchor="middle" class="tick">R3</text><polyline points="52.0,150.3 214.7,54.1 377.3,86.1 540.0,54.1" fill="none" stroke="var(--series-3)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="150.3" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="150.3" r="13" fill="transparent"><title>repeat 1, round 0 — 0.778</title></circle><circle cx="214.7" cy="54.1" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="54.1" r="13" fill="transparent"><title>repeat 1, round 1 — 0.944</title></circle><circle cx="377.3" cy="86.1" r="4" fill="var(--surface)" stroke="var(--series-3)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="377.3" cy="86.1" r="13" fill="transparent"><title>repeat 1, round 2 — 0.889 (rolled back)</title></circle><circle cx="540.0" cy="54.1" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="540.0" cy="54.1" r="13" fill="transparent"><title>repeat 1, round 3 — 0.944</title></circle><polyline points="52.0,118.2 214.7,118.2 377.3,54.1 540.0,54.1" fill="none" stroke="var(--series-3)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="118.2" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="118.2" r="13" fill="transparent"><title>repeat 2, round 0 — 0.833</title></circle><circle cx="214.7" cy="118.2" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="214.7" cy="118.2" r="13" fill="transparent"><title>repeat 2, round 1 — 0.833</title></circle><circle cx="377.3" cy="54.1" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="377.3" cy="54.1" r="13" fill="transparent"><title>repeat 2, round 2 — 0.944</title></circle><circle cx="540.0" cy="54.1" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="540.0" cy="54.1" r="13" fill="transparent"><title>repeat 2, round 3 — 0.944</title></circle><polyline points="52.0,118.2 214.7,150.3 377.3,118.2 540.0,86.1" fill="none" stroke="var(--series-3)" stroke-width="2" stroke-linejoin="round" opacity="0.72"/><circle cx="52.0" cy="118.2" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="52.0" cy="118.2" r="13" fill="transparent"><title>repeat 3, round 0 — 0.833</title></circle><circle cx="214.7" cy="150.3" r="4" fill="var(--surface)" stroke="var(--series-3)" stroke-width="2" stroke-dasharray="2.5 2"/><circle cx="214.7" cy="150.3" r="13" fill="transparent"><title>repeat 3, round 1 — 0.778 (rolled back)</title></circle><circle cx="377.3" cy="118.2" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="377.3" cy="118.2" r="13" fill="transparent"><title>repeat 3, round 2 — 0.833</title></circle><circle cx="540.0" cy="86.1" r="4.5" fill="var(--series-3)" stroke="var(--surface)" stroke-width="2"/><circle cx="540.0" cy="86.1" r="13" fill="transparent"><title>repeat 3, round 3 — 0.889</title></circle></svg>
-        <figcaption>All 3 repeat runs on shared axes. Hollow, dashed
-        markers are rounds whose change scored worse than the best so far and was
-        discarded. The spread between curves is real: this model cannot be pinned
-        to a fixed temperature, so round 0 alone varies by
-        0.055 across identical runs.</figcaption>
+        <figcaption>3 illustrative example runs on shared axes —
+        not the statistical sample. Hollow, dashed markers are rounds whose
+        change scored worse than the best so far and was discarded. The spread
+        shown here is real but small-n: this model cannot be pinned to a fixed
+        temperature, so round 0 alone varies by
+        0.055 across these 3 runs. The
+        measured distribution across n=8 runs is in
+        <code>report/variance.json</code>.</figcaption>
       </figure>
 
       <h3>Detail — the repeat with the most headroom</h3>
