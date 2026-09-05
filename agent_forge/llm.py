@@ -46,11 +46,12 @@ DEFAULT_MODEL = os.environ.get("AGENT_FORGE_MODEL", "gpt-5-nano")
 # system behaves exactly as before. A tracing tool must never be able to break
 # the run it is observing, so an import or init failure is swallowed.
 _tracing_enabled = False
-if os.environ.get("NEATLOGS_API_KEY"):
+_NEATLOGS_KEY = os.environ.get("NEATLOGS_API_KEY")
+if _NEATLOGS_KEY:
     try:
         import neatlogs
 
-        neatlogs.init()
+        neatlogs.init(api_key=_NEATLOGS_KEY, tags=["agent-forge", DEFAULT_MODEL])
         _tracing_enabled = True
     except Exception as _exc:  # noqa: BLE001
         print(f"[agent_forge] Neatlogs tracing unavailable, continuing without it: {_exc}")
