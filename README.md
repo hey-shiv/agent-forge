@@ -160,9 +160,12 @@ off the agent's search mid-scan — the system was fighting the framework, not
 learning. With the cap raised to 14 the honest curve is 0.833 → 1.000. The
 smaller, real number is the one reported.
 
-**Cost is reported in tokens, not dollars.** `USD_PER_1M_*_TOKENS` in `llm.py`
-are deliberately left at 0.0 rather than guessing OpenAI's prices. Fill in the
-two constants and every cost figure populates. Token counts are exact.
+**Dollar costs are only real for runs recorded after the pricing constants
+were set.** `USD_PER_1M_*_TOKENS` in `llm.py` now hold gpt-5-nano's real
+per-token rates, so cost is computed live from each run's own token counts.
+Runs already in `runs/` from before that point show `total_cost_usd: 0.00`
+and can't be corrected retroactively, because per-call token counts were
+never persisted to disk — only the aggregate metric was.
 
 **The available model is small.** Only `gpt-5-nano` and two embedding models are
 reachable on the grant key. Domain design had to account for this: an early

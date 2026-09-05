@@ -292,6 +292,7 @@ def domain_section(group: dict, idx: int) -> str:
             f'<td class="num">{m.get("accuracy", 0):.3f}</td>'
             f'<td class="num">{m.get("reliability", 0):.2f}</td>'
             f'<td class="num">{m.get("avg_latency_s", 0):.2f}s</td>'
+            f'<td class="num">${m.get("total_cost_usd", 0):.5f}</td>'
             f'<td class="chips">{failure_chips(r.get("failure_modes", {}))}</td>'
             f'<td class="why">{esc(r.get("change_summary", ""))}'
             f'{"" if kept else " <em>— rolled back</em>"}</td>'
@@ -339,7 +340,7 @@ def domain_section(group: dict, idx: int) -> str:
         <table>
           <thead><tr>
             <th>Round</th><th>Spec</th><th>Orchestration</th><th>Accuracy</th>
-            <th>Reliab.</th><th>Latency</th><th>Failure clusters</th>
+            <th>Reliab.</th><th>Latency</th><th>Cost</th><th>Failure clusters</th>
             <th>Change the system made, and why</th>
           </tr></thead>
           <tbody>{"".join(rows)}</tbody>
