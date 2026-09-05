@@ -228,6 +228,10 @@ scripts/
 
 ## Built with AO
 
-Developed end to end in AO across the hackathon, including the framework
-design, all three domains, the failure-cluster taxonomy, the rollback
-mechanism, and the diagnosis of every issue in the "inconvenient" section above.
+The framework design, all three domains, the failure-cluster taxonomy, the
+rollback mechanism, and the diagnosis of every issue in the "inconvenient"
+section above were built with Claude Code directly. AO was adopted in the
+final phase of the hackathon, to orchestrate the remaining work as parallel
+worker sessions — each in its own git worktree against
+`github.com/hey-shiv/agent-forge` — planned and dispatched by an AO
+orchestrator agent.

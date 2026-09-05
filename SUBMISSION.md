@@ -1,7 +1,7 @@
 # Agent Forge — Track 1 submission
 
 **Syndicate by Maximor · Track 1: Automated Agent Engineering**
-Shivashant Manohar · built end to end in AO
+Shivashant Manohar · final phase orchestrated with AO
 
 ---
 
@@ -243,12 +243,11 @@ before/after would need many more samples than the hackathon window allowed.
 
 ## How AO was used
 
-Built end to end in AO across the hackathon: framework design, all three
-domains, the failure-cluster taxonomy, the rollback and escalation mechanisms,
-the report generator, and the diagnosis of every issue in the two sections
-above. The bugs in "What went wrong" were found by reading real run output in
-AO, not by guessing — including the tool-iteration artifact, which was caught
-only because the failure clusters were named specifically enough to look wrong.
+The framework, all three domains, and the report generator were built with
+Claude Code directly. AO was adopted in the final phase of the build, to
+orchestrate the remaining work as parallel worker sessions — each in its own
+git worktree against `github.com/hey-shiv/agent-forge` — planned and
+dispatched by an AO orchestrator agent.
 
 ---
 
