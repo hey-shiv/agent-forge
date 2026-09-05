@@ -36,6 +36,25 @@ load_dotenv(_PROJECT_ROOT / ".env")
 
 DEFAULT_MODEL = os.environ.get("AGENT_FORGE_MODEL", "gpt-5-nano")
 
+# Optional Neatlogs tracing. Every model call in this project goes through
+# `complete()` below, so initialising once here instruments the whole system:
+# each generator and improver call, with its prompt, reply and token usage,
+# lands in the Neatlogs dashboard where the per-round failure analysis can be
+# inspected call by call.
+#
+# Entirely opt-in — without NEATLOGS_API_KEY set, nothing is imported and the
+# system behaves exactly as before. A tracing tool must never be able to break
+# the run it is observing, so an import or init failure is swallowed.
+_tracing_enabled = False
+if os.environ.get("NEATLOGS_API_KEY"):
+    try:
+        import neatlogs
+
+        neatlogs.init()
+        _tracing_enabled = True
+    except Exception as _exc:  # noqa: BLE001
+        print(f"[agent_forge] Neatlogs tracing unavailable, continuing without it: {_exc}")
+
 # gpt-5-nano standard API pricing, from OpenAI's official pricing page
 # (developers.openai.com/api/docs/pricing), checked 2026-09-06.
 #
