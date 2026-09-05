@@ -93,24 +93,20 @@ the AO-usage requirement is evidenced on camera.
 
 > "Now the part I most want you to hear.
 >
-> I first reported three runs of that unseen domain, all reaching a perfect 1.0.
-> Then I did a release check from a clean clone, and it scored 0.58 with zero
+> I first reported three runs of that unseen domain, all reaching a perfect
+> 1.0. Then a release check from a clean clone scored 0.58 with zero
 > improvement. One extra sample destroyed my headline.
 >
-> So I took eight runs per domain. The real numbers are: mean gain of about
-> ten points on the unseen domain, ten on ticket routing, six on invoices — and
-> **six runs out of twenty-four improve nothing at all**.
+> So I measured eight runs per domain — 24 total, in `report/variance.json`.
+> The real numbers: mean gain of about ten points on the unseen domain, ten on
+> ticket routing, six on invoices — and **six runs out of twenty-four improve
+> nothing at all**. The curves on screen in `report/index.html` are
+> illustrative examples, not the statistics; the statistics are in that file.
 >
-> That's a worse result than what I had before. It's also the true one. A system
-> whose whole job is measuring agents honestly has no business reporting its own
-> performance from a lucky sample."
-
-**Show:** the results table in `SUBMISSION.md`, or `report/variance.json`.
-
-> "There's a second one like that. The scheduler originally showed a dramatic
-> 0.17 to 0.67 climb — and most of it turned out to be the system fighting a bug
-> in my own framework, a tool-iteration cap cutting its search off. I fixed the
-> cap; the honest curve is smaller. That's the one in the report."
+> There's a second one like this. The scheduler originally showed a dramatic
+> 0.17 to 0.67 climb, and most of it turned out to be the system fighting a
+> bug in my own framework — a tool-iteration cap cutting its search off. I
+> fixed the cap; the honest curve is smaller. That's the one in the report."
 
 ---
 
@@ -120,7 +116,7 @@ the AO-usage requirement is evidenced on camera.
 > all three on average, it catches its own regressions, and it works on a task
 > it was never built for — measured over twenty-four runs, not a lucky one.
 >
-> Built end to end in AO."
+> Built with Claude Code, with AO orchestrating the final phase."
 
 ---
 

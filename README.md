@@ -133,18 +133,19 @@ distinct domains" a real claim rather than a restatement.
 `meeting_scheduler` was written **after** the framework was finished and tuned
 on the other two. It is the generality test.
 
-### Results — n = 8 runs per domain, 4 rounds each
+### Results — n = 8 runs per domain, 4 rounds each (`report/variance.json`)
 
-| Domain | Round 0 | Best | Gain | sd | Zero-gain runs |
+| Domain | Round 0 | Best | Gain | Gain sd | Zero-gain runs |
 |---|---|---|---|---|---|
 | `ticket_routing` | 0.785 | 0.889 | **+0.104** | 0.081 | 2 / 8 |
 | `invoice_extraction` | 0.898 | 0.958 | **+0.060** | 0.065 | 1 / 8 |
 | `meeting_scheduler` *(unseen)* | 0.812 | 0.917 | **+0.104** | 0.107 | 3 / 8 |
 
-The system improves the agent it wrote, on average, in all three domains —
-including one it had never seen. It also fails to improve anything in **6 of 24
-runs**. Both halves of that sentence are the result. Reliability was 1.000
-across all 24 runs (no crashes). Raw distributions: `report/variance.json`.
+On average the system improves the agent it wrote in all three domains,
+including one it had never seen — and it fails to improve anything in **6 of
+24 runs**. Reliability was 1.000 across all 24 runs (no crashes). Raw
+per-run curves are in `report/variance.json`; see `SUBMISSION.md` for how this
+number was arrived at.
 
 Each eval set is built so failures cluster into nameable modes. In
 `ticket_routing`, for example:
@@ -163,11 +164,12 @@ Reported here rather than buried, because they affect how the numbers should be 
 
 **Single runs are noisy — noisier than we first believed.** `gpt-5-nano` is
 non-deterministic and rejects the `temperature` parameter, so it cannot be
-pinned. We first reported 3 repeats of the unseen domain, all reaching 1.000. A
-release check from a fresh clone then scored 0.583 with zero gain, falsifying
-that. At n=8 the truth is mean gain +0.104 with **3 of 8 runs gaining nothing**.
-`scripts/measure_variance.py` exists because of this; distributions are in
-`report/variance.json`.
+pinned. An earlier draft reported 3 repeats of the unseen domain, all reaching
+1.000. A later run scored 0.583 with zero gain, contradicting that. The
+`report/index.html` curves below are illustrative examples (3 per domain,
+kept fixed at that count); the actual distribution — mean gain, spread, and
+the 6-of-24 zero-gain rate — is measured at n=8 per domain in
+`scripts/measure_variance.py` and recorded in `report/variance.json`.
 
 **One early "result" was our own bug.** The scheduler first showed a dramatic
 0.167 → 0.667 climb. Investigation showed the dominant failure cluster
