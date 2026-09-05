@@ -18,3 +18,12 @@ runs_archive/
 # NOTE: runs/ and report/ are deliberately NOT ignored. They are the evidence
 # for the submission — the per-round logs a judge can audit, and the generated
 # results page. Ignoring them would leave the claims unverifiable.
+
+# Pre-kickoff study material. Written before the hackathon start time to learn
+# the problem space; not part of the project. Kept locally, out of the repo.
+# NOTE: report/index.html is project output and stays tracked — do not
+# broaden this to *.html.
+/textbook.html
+/agent-engineering-textbook.html
+/agent-engineering-curriculum.html
+/finding-the-same-song.html
