@@ -169,15 +169,16 @@ the pre-recorded take — see setup notes above).
 > to worker sessions, each running in its own isolated git worktree against
 > this repo."
 
-**Show:** `git log --oneline --graph --all | head -20` — three branches
+**Show:** `git log --oneline --graph --all | head -20` — worker branches
 merging into `main`.
 
-> "Three worker sessions landed changes — you can see the merges here. And I
-> didn't send them out to write features. I sent them to audit what I'd
-> already written, because a project whose whole pitch is 'measure yourself
-> honestly' has to survive someone else checking its homework."
+> "You can see the merges here. And I didn't send those sessions out to write
+> features. I sent them to audit what I'd already written, because a project
+> whose whole pitch is 'measure yourself honestly' has to survive someone else
+> checking its homework."
 
-**Show:** `gh pr list --state all` — two merged pull requests on GitHub.
+**Show:** `gh pr list --state all` — each worker session landed its changes as
+its own pull request on GitHub.
 
 > "Here's the one that matters most. Pull request one is titled 'docs: correct
 > AO's role to the final orchestration phase.' That worker session read my own
@@ -220,8 +221,8 @@ merging into `main`.
 - [ ] A live (or pre-recorded) `generality_demo` run
 - [ ] The system prompt the system wrote for the unseen domain
 - [ ] `git worktree list` — the AO worker worktrees
-- [ ] `git log --oneline --graph --all` — three worker branches merged into main
-- [ ] `gh pr list --state all` — two merged pull requests
+- [ ] `git log --oneline --graph --all` — worker branches merged into main
+- [ ] `gh pr list --state all` — merged pull requests, one per worker session
 - [ ] The AO desktop app, open to the sessions view
 
 ## Do not
