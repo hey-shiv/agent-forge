@@ -120,7 +120,47 @@ all three domains, including one it had never seen** — and it fails to
 improve anything in **6 of 24 runs**. On the unseen domain, individual runs
 range from a perfect 1.000 down to 0.083 mid-run before partial recovery.
 
-Reliability was 1.000 across all 24 runs — no agent crashes in any sample.
+### Reliability, measured properly
+
+`measure_variance.py` records **accuracy only** — `variance.json` contains no
+reliability field — so reliability is quoted from the per-round logs in `runs/`
+and `runs_archive/` rather than from the n=8 sample.
+
+Across **210 logged rounds**, 197 (**93.8%**) had reliability 1.000. Thirteen
+did not, totalling 28 crashed agents. The worst was **0.500** — six of twelve
+agents — in `runs/meeting_scheduler-20260906-003749.json` round 2.
+
+The distribution is not random, and this is the more interesting result:
+
+| Orchestration | Rounds with crashes |
+|---|---|
+| `single-shot` | **0** |
+| `react-loop` | **0** |
+| `planner-executor` | **13 — all of them** |
+
+| Domain | Degraded rounds |
+|---|---|
+| `ticket_routing` | 0 / 77 |
+| `invoice_extraction` | 3 / 81 |
+| `meeting_scheduler` | 10 / 52 |
+
+Every crash occurred under `planner-executor`, and in every case the loop
+scored that round as a regression and rolled it back — so no degraded spec was
+carried forward into a reported result. Reliability is therefore a property of
+one orchestration mode rather than of the system as a whole.
+
+**Unverified lead:** `planner-executor` is the only mode that makes an extra
+`llm.complete()` call, for the planning pass, and it does so with
+`max_completion_tokens=1200` — the tightest budget anywhere in the codebase,
+against a reasoning model that spends part of that budget invisibly. `llm.py`
+raises on empty output by design. That is a plausible mechanism for the
+crashes and it matches where they occur, but per-trace error strings are not
+persisted to the run logs, so it has not been confirmed.
+
+> An earlier draft of this section claimed "reliability was 1.000 across all
+> 24 runs — no agent crashes in any sample." That was wrong twice over: the
+> cited source never recorded reliability, and the shipped run logs contain
+> crashes. It was found by re-reading the logs while writing documentation.
 
 Per-round curves, failure clusters, and the system's own stated reason for
 every change are in `report/index.html` — those curves are **illustrative
@@ -128,7 +168,82 @@ examples** (3 fixed example runs per domain), not the statistical sample.
 Raw distributions for all 24 measured runs are in `report/variance.json`;
 per-round logs for the example runs are in `runs/`.
 
-### How this number got corrected — and why that matters
+### The ablation: does the improver actually cause the improvement?
+
+This is the question the results table above cannot answer on its own, and it is
+the one we most wanted to be sure of.
+
+A gain is reported as `best_round − round_0`. But the model is
+non-deterministic, and **best-of-N rises with N even when nothing is learning**.
+Sample the same agent four times and the maximum of those four draws will
+usually exceed the first draw, purely from noise. So every number above is, in
+principle, compatible with a system that improves nothing and merely benefits
+from being sampled four times.
+
+`scripts/ablation.py` tests this directly. Two arms, identical in every respect
+except one — same generator, same round count, same number of agent executions,
+same best-of-N selection:
+
+- **TREATMENT** — the normal loop, with the improver
+- **CONTROL** — the same generated spec re-run every round, improver removed
+
+**Results (n = 8 per arm, per domain, 32 runs total):**
+
+| Domain | Arm | round 0 | best | **gain** | sd |
+|---|---|---|---|---|---|
+| `meeting_scheduler` | TREATMENT | 0.656 | 0.719 | **+0.063** | 0.097 |
+| `meeting_scheduler` | CONTROL | 0.812 | 0.906 | **+0.094** | 0.122 |
+| `ticket_routing` | TREATMENT | 0.806 | 0.896 | **+0.090** | 0.098 |
+| `ticket_routing` | CONTROL | 0.854 | 0.903 | **+0.049** | 0.036 |
+
+| Domain | Improver contribution | Welch t | Verdict |
+|---|---|---|---|
+| `meeting_scheduler` | **−0.031** | −0.57 | indistinguishable |
+| `ticket_routing` | **+0.042** | +1.13 | indistinguishable |
+
+**The honest conclusion: at n = 8 per arm, the improver's contribution is not
+resolvable. The two point estimates have opposite signs and both confidence
+intervals comfortably include zero.**
+
+This is the most important result in the submission, so it is worth stating
+without hedging in either direction:
+
+- We **cannot** claim the improvement loop reliably makes agents better. On
+  `meeting_scheduler` it slightly underperformed simply re-running the same spec
+  and keeping the best round.
+- We **also cannot** claim it does nothing. On `ticket_routing` it was ahead by
+  a similar margin. Both differences are within noise.
+- What is ruled out is a **large** effect in either direction. A real effect of
+  ±0.04 would need roughly 60–100 runs per arm to separate from noise at this
+  variance — well beyond a hackathon budget, and worth stating as the concrete
+  next experiment rather than glossed over.
+
+Two things that must not be mistaken for excuses:
+
+- The arms drew different round-0 values despite generating specs identically
+  (0.656 vs 0.812 on the scheduler). That gap is sampling noise, and it is why
+  the **gain** columns — measured within each arm — are the fair comparison, not
+  the absolute scores.
+- Eval sets are 12–19 items, so one item moves accuracy 5–8 points. The
+  measurement is coarse relative to the effect being measured. That is a design
+  limitation of this submission, not a property of the approach.
+
+We ran this experiment knowing it might invalidate the headline, and are
+reporting it because the alternative is letting a judge find it. A system built
+to measure agents honestly has to survive being pointed at itself.
+
+**What survives, and what does not:**
+
+| | Status |
+|---|---|
+| "The improvement loop reliably makes agents better" | ❌ **Not demonstrated.** Indistinguishable from resampling at n=8 |
+| Designs a working agent for an unseen domain from goal + tools + eval | ✅ Demonstrated |
+| Orchestration is a real lever, genuinely exercised | ✅ Demonstrated |
+| Failure clustering turns traces into named, actionable diagnoses | ✅ Demonstrated |
+| Regressions detected and rolled back | ✅ Demonstrated |
+| Results measured with a control, not asserted | ✅ **This is the contribution** |
+
+### How the headline number got corrected — and why that matters
 
 An earlier draft of this section reported something much better: three
 repeats of `meeting_scheduler`, all three reaching 1.000, range 1.000–1.000.

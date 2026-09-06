@@ -1,4 +1,8 @@
-# Demo video script — 3 minutes
+# Demo video script — ~3.5 minutes
+
+*(Runs slightly over 3:00. The ablation section is the single most
+differentiating thing you have — if you must cut, cut from the
+middle sections, not from that.)*
 
 Record in this order. Times are cumulative. Everything below is real output —
 nothing is staged, so if a live run gives slightly different numbers, say the
@@ -79,9 +83,10 @@ the AO-usage requirement is evidenced on camera.
 
 **At the end:**
 
-> "It had never seen this domain, and it improved its own agent unattended.
-> On a good draw it reaches a perfect 1.0 — though as I'll say in a moment,
-> not every run does."
+> "It had never seen this domain, and it designed and ran that agent unattended.
+> On a good draw it reaches a perfect 1.0 — though as I'll say in a moment, not
+> every run does, and whether the rewriting is what got it there is a question
+> I actually tested."
 
 **Show:** the final block printing the system prompt it wrote.
 
@@ -89,7 +94,7 @@ the AO-usage requirement is evidenced on camera.
 
 ---
 
-## 2:30 – 2:55 · Honesty section — *do not cut this*
+## 2:20 – 3:05 · Honesty section — *the strongest part; do not cut*
 
 > "Now the part I most want you to hear.
 >
@@ -108,13 +113,42 @@ the AO-usage requirement is evidenced on camera.
 > bug in my own framework — a tool-iteration cap cutting its search off. I
 > fixed the cap; the honest curve is smaller. That's the one in the report."
 
+**Show:** the ablation table in `SUBMISSION.md`.
+
+> "And then I went one further, because there's a hole in every number I just
+> gave you. 'Best round minus round zero' goes up with the number of rounds
+> even if nothing is learning — you're just sampling more times and keeping the
+> luckiest.
+>
+> So I built a control. Same generated agent, re-run four times, take the best,
+> improver switched off entirely. That measures the gain you get from noise
+> alone.
+>
+> On the scheduling domain my improver came out **0.03 behind** that control.
+> On ticket routing, **0.04 ahead**. Neither is significant — opposite signs,
+> both intervals include zero.
+>
+> So I can't tell you my improvement loop beats simply re-running the agent.
+> At this sample size, that's undetermined. It'd take sixty to a hundred runs
+> per arm to settle it.
+>
+> That result is in the submission, in a table, near the top — not a footnote.
+> Because a system built to measure agents honestly has to survive being
+> pointed at itself. And if I don't run that experiment, I don't actually know
+> whether my project works. A judge shouldn't have to be the one to ask."
+
 ---
 
-## 2:55 – 3:05 · Close
+## 3:05 – 3:20 · Close
 
-> "Three domains, three different shapes, one unchanged system. It improves on
-> all three on average, it catches its own regressions, and it works on a task
-> it was never built for — measured over twenty-four runs, not a lucky one.
+> "Three domains, three different shapes, one unchanged system. It designs a
+> working agent for a task it was never built for, from one sentence and a tool
+> description. It exercises orchestration as a real lever, not just wording. It
+> names its own failure modes and catches its own regressions.
+>
+> What I can't yet tell you is whether the improvement loop beats resampling.
+> I measured that, and at my sample size it's undetermined. That's the next
+> experiment, and it's specified in the submission.
 >
 > Built with Claude Code, with AO orchestrating the final phase."
 
@@ -135,3 +169,7 @@ the AO-usage requirement is evidenced on camera.
 - Cost figures are real only for runs recorded after pricing was set in
   `llm.py`; older logs show $0.00. Say so if the number is on screen.
 - Do not read the whole generated system prompt aloud — show it, summarise it.
+- Do not say "it improves agents" as a flat claim anywhere. The ablation does not
+  support it. Say "it designs working agents for unseen domains, and whether the
+  improvement loop beats resampling is undetermined at my sample size." That
+  phrasing is both true and stronger — it shows you know the difference.

@@ -143,9 +143,46 @@ on the other two. It is the generality test.
 
 On average the system improves the agent it wrote in all three domains,
 including one it had never seen — and it fails to improve anything in **6 of
-24 runs**. Reliability was 1.000 across all 24 runs (no crashes). Raw
-per-run curves are in `report/variance.json`; see `SUBMISSION.md` for how this
-number was arrived at.
+24 runs**. Raw per-run curves are in `report/variance.json`; see
+`SUBMISSION.md` for how this number was arrived at.
+
+### But is that gain *caused* by the improver? — the ablation
+
+Best-of-N rises with N even when nothing is learning: sample the same agent four
+times and the max of those draws usually beats the first. So `scripts/ablation.py`
+compares the loop against a control that re-runs **the same spec** every round
+and also takes best-of-N — isolating the gain available from noise alone.
+Identical generator, round count, agent executions and selection rule; the only
+difference is whether the spec is rewritten between rounds.
+
+| Domain | Improver contribution | Welch t | Verdict |
+|---|---|---|---|
+| `meeting_scheduler` | **−0.031** | −0.57 | indistinguishable |
+| `ticket_routing` | **+0.042** | +1.13 | indistinguishable |
+
+**At n=8 per arm the improver's effect is not resolvable.** The two point
+estimates have opposite signs and both intervals include zero. A large effect is
+ruled out; detecting a real ±0.04 effect at this variance would need roughly
+60–100 runs per arm.
+
+So the claim this project makes is *not* "the loop reliably improves agents" —
+that is undemonstrated. It is: the system designs working agents for unseen
+domains from three inputs, exercises orchestration as a genuine lever, produces
+named actionable failure diagnoses, catches its own regressions, and **its
+central claim was tested against a control rather than asserted.** Full
+treatment in `SUBMISSION.md`; raw data in `report/ablation.json`.
+
+**Reliability is measured from the per-run logs, not from that sample** —
+`measure_variance.py` records accuracy only, so `variance.json` carries no
+reliability figure. Across the 210 logged rounds in `runs/` and
+`runs_archive/`, **197 (93.8%) had reliability 1.000**; 13 did not, totalling
+28 crashed agents. The worst was 0.500 — six of twelve agents — in
+`runs/meeting_scheduler-20260906-003749.json` round 2.
+
+All 13 degraded rounds ran under **`planner-executor`**. There were **zero
+crashes under `single-shot` or `react-loop`**, and `ticket_routing` never
+crashed in any of its 77 rounds. In every case the loop scored the round as a
+regression and rolled it back, so no degraded spec was ever carried forward.
 
 Each eval set is built so failures cluster into nameable modes. In
 `ticket_routing`, for example:
@@ -190,6 +227,25 @@ printed at the end of a run are exact throughout.
 reachable on the grant key. Domain design had to account for this: an early
 semantic-retrieval domain was abandoned because `text-embedding-3-small` scored
 11/12 with no agent involvement at all — no headroom, nothing proved.
+
+---
+
+## Agent tracing (Neatlogs)
+
+Every model call in the system goes through `llm.complete()`, so a single
+`neatlogs.init()` instruments the whole loop — each generator and improver call,
+with its prompt, reply and token usage, viewable call by call.
+
+```bash
+NEATLOGS_TRACE=1 .venv/bin/python -m scripts.generality_demo
+```
+
+**Opt-in, deliberately.** The SDK writes a full JSON trace of every call to
+stdout. During a measurement run that produced a 23 MB log which buried the
+results — and printed the API key in plaintext into it. So tracing is off unless
+`NEATLOGS_TRACE=1` is set, which keeps measurement output clean and keeps the
+key out of any log that might be shared. A missing package, absent key or
+network failure degrades to "tracing off" and never breaks the run.
 
 ---
 

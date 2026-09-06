@@ -36,26 +36,6 @@ load_dotenv(_PROJECT_ROOT / ".env")
 
 DEFAULT_MODEL = os.environ.get("AGENT_FORGE_MODEL", "gpt-5-nano")
 
-# Optional Neatlogs tracing. Every model call in this project goes through
-# `complete()` below, so initialising once here instruments the whole system:
-# each generator and improver call, with its prompt, reply and token usage,
-# lands in the Neatlogs dashboard where the per-round failure analysis can be
-# inspected call by call.
-#
-# Entirely opt-in — without NEATLOGS_API_KEY set, nothing is imported and the
-# system behaves exactly as before. A tracing tool must never be able to break
-# the run it is observing, so an import or init failure is swallowed.
-_tracing_enabled = False
-_NEATLOGS_KEY = os.environ.get("NEATLOGS_API_KEY")
-if _NEATLOGS_KEY:
-    try:
-        import neatlogs
-
-        neatlogs.init(api_key=_NEATLOGS_KEY, tags=["agent-forge", DEFAULT_MODEL])
-        _tracing_enabled = True
-    except Exception as _exc:  # noqa: BLE001
-        print(f"[agent_forge] Neatlogs tracing unavailable, continuing without it: {_exc}")
-
 # gpt-5-nano standard API pricing, from OpenAI's official pricing page
 # (developers.openai.com/api/docs/pricing), checked 2026-09-06.
 #
@@ -67,6 +47,55 @@ USD_PER_1M_INPUT_TOKENS = 0.05
 USD_PER_1M_OUTPUT_TOKENS = 0.40
 
 _client = None
+_tracing = None
+
+
+def _init_tracing() -> str:
+    """Optional Neatlogs tracing, enabled only when NEATLOGS_API_KEY is set.
+
+    Every model call in this project goes through `complete()` below, so
+    initialising once instruments the whole system: each generator and improver
+    call, with its prompt, reply and token usage, lands in the Neatlogs
+    dashboard where a round's failure analysis can be inspected call by call.
+
+    Initialised lazily rather than at import, so merely importing this module —
+    as the test suite does — costs no network call.
+
+    Every failure path here is swallowed on purpose. Tracing is observability,
+    not functionality: a missing package, an expired key or a network problem at
+    the sponsor's end must never take down a run — least of all on a judge's
+    machine, where the key will simply be absent.
+    """
+    global _tracing
+    if _tracing is not None:
+        return _tracing
+
+    # Opt-IN, not opt-out. The SDK writes a full JSON trace of every call to
+    # stdout, which during a measurement run produced a 23 MB log that buried
+    # the actual results — and, worse, printed the API key in plaintext into it.
+    # Tracing is therefore off unless explicitly requested, so that measurement
+    # scripts stay clean and no key can leak into a log that gets shared.
+    if os.environ.get("NEATLOGS_TRACE", "").lower() not in ("1", "true", "yes"):
+        _tracing = "off (set NEATLOGS_TRACE=1 to enable)"
+        return _tracing
+
+    api_key = os.environ.get("NEATLOGS_API_KEY")
+    if not api_key:
+        _tracing = "disabled (no NEATLOGS_API_KEY)"
+        return _tracing
+
+    try:
+        import neatlogs
+
+        neatlogs.init(api_key=api_key, tags=["agent-forge", "syndicate", DEFAULT_MODEL])
+        _tracing = "enabled"
+    except Exception as exc:  # noqa: BLE001 - see docstring
+        _tracing = f"unavailable ({type(exc).__name__})"
+    return _tracing
+
+
+def tracing_status() -> str:
+    return _init_tracing()
 
 
 def _get_client():
@@ -79,6 +108,9 @@ def _get_client():
             raise RuntimeError(
                 "OPENAI_API_KEY not found. Copy .env.example to .env and fill it in."
             )
+        # Start tracing before the client exists so instrumentation catches
+        # every call, including the very first one.
+        _init_tracing()
         _client = OpenAI(api_key=api_key)
     return _client
 

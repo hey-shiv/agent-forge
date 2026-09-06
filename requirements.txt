@@ -7,3 +7,4 @@ numpy>=1.26
 # does not declare it as a dependency.
 neatlogs>=1.1.8
 requests>=2.31
+neatlogs>=1.1  # optional: agent tracing (sponsor tool). Safe to omit.
