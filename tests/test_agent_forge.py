@@ -22,6 +22,7 @@ from domains.meeting_scheduler.domain import (
     check_slot,
 )
 from domains.ticket_routing.domain import TASKS as TICKET_TASKS, TicketRoutingDomain
+from scripts.measure_variance import build_summary, round_detail
 
 
 def _spec(orch: str = "react-loop") -> AgentSpec:
@@ -187,3 +188,70 @@ def test_scheduler_parses_the_final_time_mentioned():
     trace = RunTrace(task_id="s1", input={},
                      output="I checked 09:00 and 11:00, the answer is 13:00")
     assert domain.score([trace])[0]["accuracy"] == 1.0
+
+
+# --------------------------------------------------------------------------
+# measure_variance: per-round orchestration/reliability recording
+# --------------------------------------------------------------------------
+
+def _round_with_orch(orch: str, accuracy: float, reliability: float,
+                      failures: dict | None = None) -> RoundResult:
+    return RoundResult(
+        agent_spec=_spec(orch), traces=[],
+        metrics={"accuracy": accuracy, "reliability": reliability},
+        failure_modes=failures or {},
+    )
+
+
+def test_round_detail_records_orchestration_accuracy_reliability_and_failures():
+    history = [
+        _round_with_orch("planner-executor", 0.333, 1.0, {"stuck_thing": 3}),
+        _round_with_orch("react-loop", 0.75, 0.5, {}),
+    ]
+    detail = round_detail(history)
+    assert detail == [
+        {"round": 0, "orchestration": "planner-executor", "accuracy": 0.333,
+         "reliability": 1.0, "failure_modes": {"stuck_thing": 3}},
+        {"round": 1, "orchestration": "react-loop", "accuracy": 0.75,
+         "reliability": 0.5, "failure_modes": {}},
+    ]
+
+
+def test_round_detail_is_empty_for_empty_history():
+    assert round_detail([]) == []
+
+
+def test_build_summary_keeps_existing_top_level_shape():
+    """Nothing downstream should break: the pre-existing summary keys must
+    still be present with their original meaning, accuracy-only "curves"
+    included, alongside the new per-round "repeats" field."""
+    curves = [[0.5, 0.75], [0.6, 0.6]]
+    detail = [round_detail([_round_with_orch("single-shot", 0.5, 1.0)]),
+              round_detail([_round_with_orch("react-loop", 0.6, 1.0)])]
+    summary = build_summary("ticket_routing", repeats=2, rounds=2,
+                             curves=curves, repeats_detail=detail)
+
+    for key in ("n", "rounds", "curves", "start_mean", "best_mean",
+                "gain_mean", "gain_sd", "gain_min", "gain_max",
+                "zero_gain_runs", "measured_at"):
+        assert key in summary, f"missing pre-existing key {key!r}"
+    assert summary["curves"] == curves
+    assert summary["n"] == 2
+    assert summary["start_mean"] == 0.55
+    assert summary["gain_min"] == 0.0
+    assert summary["zero_gain_runs"] == 1
+
+
+def test_build_summary_adds_per_round_orchestration_and_reliability():
+    curves = [[0.333, 0.75]]
+    detail = [round_detail([
+        _round_with_orch("planner-executor", 0.333, 1.0, {"stuck": 2}),
+        _round_with_orch("react-loop", 0.75, 1.0, {}),
+    ])]
+    summary = build_summary("meeting_scheduler", repeats=1, rounds=2,
+                             curves=curves, repeats_detail=detail)
+
+    assert summary["repeats"] == detail
+    assert summary["repeats"][0][0]["orchestration"] == "planner-executor"
+    assert summary["repeats"][0][1]["orchestration"] == "react-loop"
+    assert summary["repeats"][0][0]["reliability"] == 1.0

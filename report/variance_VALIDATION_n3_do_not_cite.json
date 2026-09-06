@@ -1,0 +1,158 @@
+{
+  "meeting_scheduler": {
+    "n": 3,
+    "rounds": 4,
+    "curves": [
+      [
+        0.4167,
+        0.4167,
+        0.1667,
+        0.4167
+      ],
+      [
+        0.75,
+        0.8333,
+        0.4167,
+        0.6667
+      ],
+      [
+        0.8333,
+        0.6667,
+        0.8333,
+        0.8333
+      ]
+    ],
+    "start_mean": 0.6666666666666667,
+    "best_mean": 0.6944333333333333,
+    "gain_mean": 0.02776666666666668,
+    "gain_sd": 0.048093277423495846,
+    "gain_min": 0.0,
+    "gain_max": 0.08330000000000004,
+    "zero_gain_runs": 2,
+    "measured_at": "2026-09-06T08:18:35",
+    "repeats": [
+      [
+        {
+          "round": 0,
+          "orchestration": "planner-executor",
+          "accuracy": 0.4167,
+          "reliability": 1.0,
+          "failure_modes": {
+            "no_parseable_time_returned": 7
+          }
+        },
+        {
+          "round": 1,
+          "orchestration": "react-loop",
+          "accuracy": 0.4167,
+          "reliability": 1.0,
+          "failure_modes": {
+            "no_parseable_time_returned": 7
+          }
+        },
+        {
+          "round": 2,
+          "orchestration": "single-shot",
+          "accuracy": 0.1667,
+          "reliability": 1.0,
+          "failure_modes": {
+            "slot_outside_working_hours": 9,
+            "slot_conflicts_with_busy_block_no_check_called": 1
+          }
+        },
+        {
+          "round": 3,
+          "orchestration": "react-loop",
+          "accuracy": 0.4167,
+          "reliability": 1.0,
+          "failure_modes": {
+            "no_parseable_time_returned": 7
+          }
+        }
+      ],
+      [
+        {
+          "round": 0,
+          "orchestration": "planner-executor",
+          "accuracy": 0.75,
+          "reliability": 0.8333,
+          "failure_modes": {
+            "agent_crashed": 2,
+            "valid_slot_but_not_the_earliest": 1
+          }
+        },
+        {
+          "round": 1,
+          "orchestration": "react-loop",
+          "accuracy": 0.8333,
+          "reliability": 1.0,
+          "failure_modes": {
+            "valid_slot_but_not_the_earliest": 2
+          }
+        },
+        {
+          "round": 2,
+          "orchestration": "planner-executor",
+          "accuracy": 0.4167,
+          "reliability": 0.5833,
+          "failure_modes": {
+            "agent_crashed": 5,
+            "valid_slot_but_not_the_earliest": 2
+          }
+        },
+        {
+          "round": 3,
+          "orchestration": "single-shot",
+          "accuracy": 0.6667,
+          "reliability": 1.0,
+          "failure_modes": {
+            "no_parseable_time_returned": 4
+          }
+        }
+      ],
+      [
+        {
+          "round": 0,
+          "orchestration": "planner-executor",
+          "accuracy": 0.8333,
+          "reliability": 1.0,
+          "failure_modes": {
+            "no_parseable_time_returned": 1,
+            "valid_slot_but_not_the_earliest": 1
+          }
+        },
+        {
+          "round": 1,
+          "orchestration": "planner-executor",
+          "accuracy": 0.6667,
+          "reliability": 0.8333,
+          "failure_modes": {
+            "agent_crashed": 2,
+            "no_parseable_time_returned": 1,
+            "valid_slot_but_not_the_earliest": 1
+          }
+        },
+        {
+          "round": 2,
+          "orchestration": "react-loop",
+          "accuracy": 0.8333,
+          "reliability": 1.0,
+          "failure_modes": {
+            "no_parseable_time_returned": 1,
+            "valid_slot_but_not_the_earliest": 1
+          }
+        },
+        {
+          "round": 3,
+          "orchestration": "planner-executor",
+          "accuracy": 0.8333,
+          "reliability": 0.9167,
+          "failure_modes": {
+            "agent_crashed": 1,
+            "valid_slot_but_not_the_earliest": 1
+          }
+        }
+      ]
+    ]
+  }
+}

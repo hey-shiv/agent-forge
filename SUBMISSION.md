@@ -122,9 +122,14 @@ range from a perfect 1.000 down to 0.083 mid-run before partial recovery.
 
 ### Reliability, measured properly
 
-`measure_variance.py` records **accuracy only** — `variance.json` contains no
-reliability field — so reliability is quoted from the per-round logs in `runs/`
-and `runs_archive/` rather than from the n=8 sample.
+The n=8 sample below was measured with a version of `measure_variance.py`
+that recorded **accuracy only** — `variance.json` contained no reliability
+field — so the reliability numbers in this section are quoted from the
+per-round logs in `runs/` and `runs_archive/` rather than from the n=8
+sample. `measure_variance.py` has since been fixed to record `reliability`
+(and `orchestration`, and `failure_modes`) per round, but that fix was not
+used to re-run this n=8 sample, so the figures below still come from `runs/`
+rather than `variance.json`.
 
 Across **210 logged rounds**, 197 (**93.8%**) had reliability 1.000. Thirteen
 did not, totalling 28 crashed agents. The worst was **0.500** — six of twelve
@@ -318,11 +323,73 @@ reached 1.000, which read as confirmation the collapse was gone. It was not —
 runs that dip as low as 0.083–0.167 mid-run before partially recovering, and
 3 of 8 end with zero net gain. The escalation rule may still be doing its job
 (these dips recover somewhat rather than flatlining at the old 0.167 for all
-four rounds), but `measure_variance.py` does not record per-round
-orchestration, so that mechanism can't be confirmed from this data — only
-the original 3 runs' full logs in `runs/` show orchestration per round, and 3
-runs is too few to generalize from. This is a claim we can no longer make at
-full confidence; treat it as unresolved rather than demonstrated.
+four rounds), but the n=8 sample above was measured *before*
+`measure_variance.py` recorded per-round orchestration, so that mechanism
+could not be confirmed from this data — only the original 3 runs' full logs
+in `runs/` showed orchestration per round, and 3 runs is too few to
+generalize from. This was a claim we could no longer make at full confidence,
+and it was left unresolved rather than demonstrated.
+
+**Update — the instrumentation gap is now closed, the question is not.**
+`measure_variance.py` now records, for every round of every repeat,
+`orchestration`, `accuracy`, `reliability`, and `failure_modes` (in the new
+`repeats` field of `variance.json`, alongside the pre-existing `curves`
+field), and this is covered by unit tests in `tests/test_agent_forge.py`.
+
+To confirm the new fields actually populate end to end — not just in unit
+tests against fake data — we ran `measure_variance.py --domain
+meeting_scheduler --repeats 3 --out
+report/variance_VALIDATION_n3_do_not_cite.json`. The file name says what it
+is: 3 repeats is a smoke test, not a sample, and it is a separate file so it
+can never be confused with or overwrite the n=8 statistical result above.
+
+**Confirmed — a fact about the code, not a statistic, so n=3 does not limit
+it:** all 12 rounds (3 repeats × 4 rounds) came back with `orchestration`,
+`accuracy`, `reliability`, and `failure_modes` populated, and `reliability`
+is not a dead field defaulting to one constant — it carried genuine sub-1.000
+values (0.9167, 0.8333, 0.5833).
+
+**Corroboration of an existing finding, not new evidence:** every one of the
+4 (of 12) rounds with reliability below 1.000, and every round with an
+`agent_crashed` cluster, occurred under `planner-executor`; every
+`react-loop` and `single-shot` round in this run scored reliability 1.000.
+That is the same pattern already reported above from 210 logged rounds in
+`runs/`, now independently reproduced over these 12 rounds. It corroborates
+the earlier finding; it is not proof, and we are not attaching a percentage
+to a 12-round reproduction.
+
+**An honest ambiguity, not a resolution:** no repeat in this run stayed on a
+single orchestration for all four rounds. Repeats 0 and 1 changed
+orchestration at every round transition; repeat 2 changed at two of three
+transitions (holding `planner-executor` for rounds 0–1, switching to
+`react-loop`, then back to `planner-executor`). That is the opposite shape
+from the old architecture-lock failure, where a run stayed on
+`planner-executor` for all four rounds and scored 0.333 → 0.250 → 0.167 →
+0.250. But orchestration changing is not the same claim as the escalation
+rule working: in repeat 0, orchestration changed three times
+(`planner-executor` → `react-loop` → `single-shot` → `react-loop`) while
+accuracy went 0.417 → 0.417 → 0.167 → 0.417 — it moved between architectures
+repeatedly and ended exactly where it started. Three runs cannot distinguish
+an escalation rule correctly forcing a change from an improver thrashing
+between architectures with no net progress. We are not claiming either
+explanation over the other; both are consistent with what these 3 runs show.
+
+We are deliberately not reporting this run's gain distribution (mean gain,
+zero-gain count) as a result to compare against the n=8 figures above — that
+comparison is exactly why the file is named `..._do_not_cite.json`. This
+project has twice been burned by treating a 3-run sample as a measurement
+(see "How the headline number got corrected" above); doing it a third time
+here would repeat the mistake this project exists to catch.
+
+This does not settle whether the escalation rule prevents the
+architecture-lock failure: answering that requires rerunning
+`measure_variance.py --domain meeting_scheduler --repeats 8` and checking
+whether the runs that dip mid-curve show an orchestration change at the
+point of the dip. That rerun has not been done — it costs the same OpenAI
+credit as the original n=8 run and was out of scope for this instrumentation
+fix. What changed here is that the question can now be answered from the
+statistical sample itself instead of from 3 separately logged example runs;
+it has not yet been answered.
 
 ### 4. Two domain designs had to be thrown away
 
