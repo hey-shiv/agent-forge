@@ -172,9 +172,11 @@ named actionable failure diagnoses, catches its own regressions, and **its
 central claim was tested against a control rather than asserted.** Full
 treatment in `SUBMISSION.md`; raw data in `report/ablation.json`.
 
-**Reliability is measured from the per-run logs, not from that sample** —
-`measure_variance.py` records accuracy only, so `variance.json` carries no
-reliability figure. Across the 210 logged rounds in `runs/` and
+**Reliability is measured from the per-run logs, not from that sample** — the
+n=8 sample above was measured before `measure_variance.py` recorded
+reliability, so `variance.json`'s existing n=8 entries carry no reliability
+figure (the script has since been fixed to record it, but that sample was not
+re-run). Across the 210 logged rounds in `runs/` and
 `runs_archive/`, **197 (93.8%) had reliability 1.000**; 13 did not, totalling
 28 crashed agents. The worst was 0.500 — six of twelve agents — in
 `runs/meeting_scheduler-20260906-003749.json` round 2.
