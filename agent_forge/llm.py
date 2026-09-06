@@ -50,52 +50,82 @@ _client = None
 _tracing = None
 
 
+NEATLOGS_INGEST_URL = "https://ingest.neatlogs.com/v1/trace"
+
+
 def _init_tracing() -> str:
-    """Optional Neatlogs tracing, enabled only when NEATLOGS_API_KEY is set.
+    """Optional Neatlogs tracing over the raw HTTP ingestion API.
 
-    Every model call in this project goes through `complete()` below, so
-    initialising once instruments the whole system: each generator and improver
-    call, with its prompt, reply and token usage, lands in the Neatlogs
-    dashboard where a round's failure analysis can be inspected call by call.
+    Every model call in this project goes through `complete()` below, so tracing
+    here instruments the whole system: each generator and improver call, with its
+    prompt, reply and token usage, lands in the Neatlogs dashboard where a
+    round's failure analysis can be inspected call by call.
 
-    Initialised lazily rather than at import, so merely importing this module —
-    as the test suite does — costs no network call.
+    Why raw HTTP rather than the `neatlogs` PyPI SDK: the published SDK (1.1.8)
+    POSTs to https://app.neatlogs.com/api/data/v2, which returns 404, so it
+    cannot deliver a trace at all. The documented HTTP ingestion endpoint works
+    and is what this uses. It also needs the *ingest* key (`nlw_...`, Settings ->
+    API Keys -> HTTP ingest key), which is a different credential from the
+    project API key — the project key is rejected here.
 
-    Every failure path here is swallowed on purpose. Tracing is observability,
-    not functionality: a missing package, an expired key or a network problem at
-    the sponsor's end must never take down a run — least of all on a judge's
-    machine, where the key will simply be absent.
+    Resolved lazily rather than at import, so merely importing this module — as
+    the test suite does — costs nothing.
+
+    Every failure path is swallowed on purpose. Tracing is observability, not
+    functionality: a missing key or a network problem at the sponsor's end must
+    never take down a run, least of all on a judge's machine where the key will
+    simply be absent.
     """
     global _tracing
     if _tracing is not None:
         return _tracing
 
-    # Opt-IN, not opt-out. The SDK writes a full JSON trace of every call to
-    # stdout, which during a measurement run produced a 23 MB log that buried
-    # the actual results — and, worse, printed the API key in plaintext into it.
-    # Tracing is therefore off unless explicitly requested, so that measurement
-    # scripts stay clean and no key can leak into a log that gets shared.
+    # Opt-IN, not opt-out, so measurement scripts stay clean and no key can
+    # leak into a log that later gets shared.
     if os.environ.get("NEATLOGS_TRACE", "").lower() not in ("1", "true", "yes"):
         _tracing = "off (set NEATLOGS_TRACE=1 to enable)"
-        return _tracing
-
-    api_key = os.environ.get("NEATLOGS_API_KEY")
-    if not api_key:
-        _tracing = "disabled (no NEATLOGS_API_KEY)"
-        return _tracing
-
-    try:
-        import neatlogs
-
-        neatlogs.init(api_key=api_key, tags=["agent-forge", "syndicate", DEFAULT_MODEL])
+    elif not os.environ.get("NEATLOGS_INGEST_KEY"):
+        _tracing = "disabled (no NEATLOGS_INGEST_KEY)"
+    elif not os.environ.get("NEATLOGS_PROJECT"):
+        _tracing = "disabled (no NEATLOGS_PROJECT)"
+    else:
         _tracing = "enabled"
-    except Exception as exc:  # noqa: BLE001 - see docstring
-        _tracing = f"unavailable ({type(exc).__name__})"
     return _tracing
 
 
 def tracing_status() -> str:
     return _init_tracing()
+
+
+def _send_trace(name: str, span: dict) -> None:
+    """Fire-and-forget one trace. Never raises, never blocks the caller."""
+    if _init_tracing() != "enabled":
+        return
+
+    def _post() -> None:
+        try:
+            import requests
+
+            requests.post(
+                NEATLOGS_INGEST_URL,
+                headers={
+                    "Authorization": f"Bearer {os.environ['NEATLOGS_INGEST_KEY']}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "name": name,
+                    "project": os.environ["NEATLOGS_PROJECT"],
+                    "spans": [span],
+                    "metadata": {"framework": "agent-forge", "model": DEFAULT_MODEL},
+                },
+                timeout=10,
+            )
+        except Exception:  # noqa: BLE001 - tracing must never break a run
+            pass
+
+    import threading
+
+    threading.Thread(target=_post, daemon=True).start()
 
 
 def _get_client():
@@ -199,6 +229,32 @@ def complete(
     session_usage.add(usage)
 
     text = resp.choices[0].message.content or ""
+
+    _send_trace(
+        name="agent_forge.llm.complete",
+        span={
+            "name": "chat.completions.create",
+            "kind": "LLM",
+            "model": model or DEFAULT_MODEL,
+            "input": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
+            "output": {"role": "assistant", "content": text},
+            "usage": {
+                "input_tokens": usage.input_tokens,
+                "output_tokens": usage.output_tokens,
+                "reasoning_tokens": usage.reasoning_tokens,
+            },
+            "start_time": t0,
+            "end_time": t0 + elapsed,
+            "metadata": {
+                "reasoning_effort": reasoning_effort,
+                "max_completion_tokens": max_completion_tokens,
+                "cost_usd": round(usage.usd, 6),
+            },
+        },
+    )
 
     if not text.strip():
         raise RuntimeError(

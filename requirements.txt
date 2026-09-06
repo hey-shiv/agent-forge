@@ -2,9 +2,7 @@ openai>=3.0
 python-dotenv>=1.0
 numpy>=1.26
 
-# Optional: agent tracing. Only used when NEATLOGS_API_KEY is set; the system
-# runs normally without it. `requests` is listed explicitly because neatlogs
-# does not declare it as a dependency.
-neatlogs>=1.1.8
+# Optional: agent tracing over Neatlogs' HTTP ingestion API. Only used when
+# NEATLOGS_TRACE=1; the system runs normally without it. The neatlogs PyPI SDK
+# is deliberately NOT used — its ingest endpoint returns 404.
 requests>=2.31
-neatlogs>=1.1  # optional: agent tracing (sponsor tool). Safe to omit.
