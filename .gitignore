@@ -27,3 +27,7 @@ runs_archive/
 /agent-engineering-textbook.html
 /agent-engineering-curriculum.html
 /finding-the-same-song.html
+
+# Neatlogs wizard scaffolding from a failed setup attempt. Kept locally as
+# evidence for the upstream bug report; not part of the project.
+.claude/
